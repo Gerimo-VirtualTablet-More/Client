@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+
+
+
+
+    <ScrollView
+        android:id="@+id/command_scrollview"
+        android:layout_width="600dp"
+        android:layout_height="600dp"
+        android:background="@drawable/round_corner_background"
+        android:backgroundTint="@color/dialogColor"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <LinearLayout
+
+            android:id="@+id/shortCutLinearLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <ScrollView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:gravity="center"
+                    android:orientation="horizontal">
+
+
+                </LinearLayout>
+            </ScrollView>
+
+
+
+
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:divider="@android:drawable/divider_horizontal_textfield"
+                android:gravity="center"
+                android:orientation="horizontal"
+                android:paddingTop="100dp"
+
+                android:showDividers="middle">
+
+
+                <com.google.android.material.floatingactionbutton.FloatingActionButton
+                    android:id="@+id/addSpinnerButton"
+                    android:layout_width="100dp"
+                    android:layout_height="100dp"
+                    android:layout_gravity="center"
+                    android:clickable="true"
+                    app:fabCustomSize="100dp"
+                    app:srcCompat="@drawable/plus_icon" />
+
+                <com.google.android.material.floatingactionbutton.FloatingActionButton
+                    android:id="@+id/deleteSpinnerButton"
+                    android:layout_width="100dp"
+                    android:layout_height="100dp"
+                    android:layout_gravity="center"
+                    android:clickable="true"
+                    app:fabCustomSize="100dp"
+                    app:srcCompat="@drawable/delete_icon" />
+
+                <com.google.android.material.floatingactionbutton.FloatingActionButton
+                    android:id="@+id/saveCommandsButton"
+                    android:layout_width="100dp"
+                    android:layout_height="100dp"
+                    android:layout_gravity="center"
+                    android:clickable="true"
+                    app:fabCustomSize="100dp"
+                    app:srcCompat="@drawable/addcommand_icon" />
+
+
+
+
+            </LinearLayout>
+
+
+
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:orientation="vertical"
+                android:layout_height="200dp">
+
+
+                <TextView
+                    android:id="@+id/shortCutResultTextview"
+                    android:layout_width="match_parent"
+
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:textAlignment="center"
+                    android:textColor="@color/white" />
+
+
+
+
+
+
+            </LinearLayout>
+
+
+
+
+        </LinearLayout>
+    </ScrollView>
+
+    <Button
+        android:id="@+id/delete_shortcutButton"
+        android:layout_width="335dp"
+        android:layout_height="125dp"
+        android:layout_marginTop="60dp"
+        android:backgroundTint="@color/red"
+        android:text="DELETE SHORTCUT"
+        android:visibility="invisible"
+        app:layout_constraintEnd_toEndOf="@+id/command_scrollview"
+        app:layout_constraintStart_toStartOf="@+id/command_scrollview"
+        app:layout_constraintTop_toBottomOf="@+id/command_scrollview" />
+
+
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

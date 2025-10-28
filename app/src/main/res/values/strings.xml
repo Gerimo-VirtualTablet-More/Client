@@ -1,6 +1,8 @@
 <resources>
-    <string name="app_name">Draw Now</string>
+    <string name="app_name">Gerimo</string>
     <string name="title_home">Home</string>
     <string name="title_dashboard">Dashboard</string>
     <string name="title_notifications">Notifications</string>
+    <string name="enter_your_openai_api_key">Enter your OpenRouter API key</string>
+    <string name="api_key_is_missing_please_create_an_api_key_and_paste_it_here">API key is missing. Please create an API key and paste it here.</string>
 </resources>

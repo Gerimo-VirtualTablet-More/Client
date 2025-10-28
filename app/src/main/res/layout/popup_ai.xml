@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+
+
+
+    <ScrollView
+        android:id="@+id/scrollView3"
+        android:layout_width="600dp"
+        android:layout_height="600dp"
+        android:background="@drawable/round_corner_background"
+        android:backgroundTint="@color/dialogColor"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+
+        <LinearLayout
+            android:id="@+id/ai_shortcut_linearLayout"
+            android:layout_marginTop="100dp"
+            android:layout_width="match_parent"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:layout_height="100dp">
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/textInputLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                tools:layout_editor_absoluteX="1dp"
+                tools:layout_editor_absoluteY="372dp">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/textInputEditText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@color/dialogColor"
+                    android:gravity="center"
+                    android:hint="hint" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <Button
+                android:id="@+id/create"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:text="Create"
+                app:cornerRadius="50dp">
+
+            </Button>
+
+
+            <com.airbnb.lottie.LottieAnimationView
+                android:id="@+id/LoadingBar"
+                android:layout_width="300dp"
+                android:layout_height="300dp"
+                android:visibility="invisible"
+                app:lottie_loop="true"
+                app:lottie_fileName="Loading.json">
+
+
+
+            </com.airbnb.lottie.LottieAnimationView>
+
+        </LinearLayout>
+
+
+
+
+    </ScrollView>
+
+
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>
