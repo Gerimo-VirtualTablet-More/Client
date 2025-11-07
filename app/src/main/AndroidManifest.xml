@@ -15,12 +15,10 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/Theme.DrawNow">
-        <activity
-            android:name=".MenuActivity"
 
-
-
+        <activity android:name=".Activities.MenuActivity"
             android:exported="true">
+
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -30,10 +28,35 @@
         </activity>
 
 
+
+
         <activity
-            android:name=".DrawActivity">
+            android:name=".Activities.DrawActivity"
+            android:exported="true">
 
         </activity>
+        <activity
+            android:name=".Activities.ShortcutActivity"
+            android:exported="true">
+
+        </activity>
+        <activity
+            android:name=".Activities.SettingsActivity"
+            android:exported="true">
+
+        </activity>
+        <activity
+            android:name=".Activities.ShowHostsActivity"
+            android:exported="true">
+
+        </activity>
+        <activity
+            android:name=".Activities.CreateProfileActivity"
+            android:exported="true">
+
+        </activity>
+
+
     </application>
 
 </manifest>

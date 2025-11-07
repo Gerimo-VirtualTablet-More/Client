@@ -21,7 +21,7 @@
             android:layout_weight="1"
             android:gravity="center"
             android:textStyle="bold"
-            android:text="sddsd"
+            android:text=""
             android:textSize="20sp" />
 
         <CheckBox

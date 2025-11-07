@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- Border Layer (volle Größe) -->
+    <item android:id="@+id/borderGradient">
+        <shape>
+            <gradient
+                android:type="linear"
+                android:startColor="#FFFF5555"
+                android:endColor="#FF1100FF"/>
+            <corners android:radius="@dimen/default_corner_radius"/>
+
+
+        </shape>
+
+    </item>
+
+    <!-- Background Layer (mit Inset für Border-Effekt) -->
+    <item
+        android:id="@+id/background"
+        android:top="5dp"
+        android:bottom="5dp"
+        android:left="5dp"
+        android:right="5dp">
+        <shape>
+            <solid android:color="?attr/colorSurface"/>
+            <corners android:radius="@dimen/default_corner_radius"/>
+        </shape>
+    </item>
+
+</layer-list>

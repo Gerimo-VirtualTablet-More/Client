@@ -1,12 +1,60 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="purple_200">#FFBB86FC</color>
-    <color name="purple_500">#FF6200EE</color>
-    <color name="purple_700">#FF3700B3</color>
-    <color name="teal_200">#FF03DAC5</color>
-    <color name="teal_700">#FF018786</color>
-    <color name="black">#FF000000</color>
-    <color name="red">#C82F2F</color>
     <color name="white">#FFFFFFFF</color>
-    <color name="dialogColor">#090909</color>
+    <color name="black">#FF000000</color>
+    <color name="gray">#808080</color>
+    <color name="red">#FF0000</color>
+    <color name="dialogColor">#FFFFFF</color>
+
+    <!-- Light Theme -->
+    <color name="light_primary">@color/black</color>
+    <color name="light_onPrimary">@color/white</color>
+    <color name="light_primaryContainer">@color/white</color>
+    <color name="light_onPrimaryContainer">@color/black</color>
+    <color name="light_secondary">@color/black</color>
+    <color name="light_onSecondary">@color/white</color>
+    <color name="light_secondaryContainer">@color/white</color>
+    <color name="light_onSecondaryContainer">@color/black</color>
+    <color name="light_tertiary">@color/black</color>
+    <color name="light_onTertiary">@color/white</color>
+    <color name="light_tertiaryContainer">@color/white</color>
+    <color name="light_onTertiaryContainer">@color/black</color>
+    <color name="light_error">@color/red</color>
+    <color name="light_onError">@color/white</color>
+    <color name="light_errorContainer">@color/white</color>
+    <color name="light_onErrorContainer">@color/red</color>
+    <color name="light_background">@color/white</color>
+    <color name="light_onBackground">@color/black</color>
+    <color name="light_surface">@color/white</color>
+    <color name="light_onSurface">@color/black</color>
+    <color name="light_surfaceVariant">@color/white</color>
+    <color name="light_onSurfaceVariant">@color/black</color>
+    <color name="light_outline">@color/black</color>
+
+    <!-- Dark Theme -->
+    <color name="dark_primary">@color/white</color>
+    <color name="dark_onPrimary">@color/black</color>
+    <color name="dark_primaryContainer">@color/black</color>
+    <color name="dark_onPrimaryContainer">@color/white</color>
+    <color name="dark_secondary">@color/white</color>
+    <color name="dark_onSecondary">@color/black</color>
+    <color name="dark_secondaryContainer">@color/black</color>
+    <color name="dark_onSecondaryContainer">@color/white</color>
+    <color name="dark_tertiary">@color/white</color>
+    <color name="dark_onTertiary">@color/black</color>
+    <color name="dark_tertiaryContainer">@color/black</color>
+    <color name="dark_onTertiaryContainer">@color/white</color>
+    <color name="dark_error">@color/red</color>
+    <color name="dark_onError">@color/black</color>
+    <color name="dark_errorContainer">@color/black</color>
+    <color name="dark_onErrorContainer">@color/red</color>
+    <color name="dark_background">@color/black</color>
+    <color name="dark_onBackground">@color/white</color>
+    <color name="dark_surface">@color/black</color>
+    <color name="dark_onSurface">@color/white</color>
+    <color name="dark_surfaceVariant">@color/black</color>
+    <color name="dark_onSurfaceVariant">@color/white</color>
+    <color name="dark_outline">@color/white</color>
+
+    <color name="cursor_color">@color/black</color>
 </resources>

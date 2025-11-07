@@ -16,6 +16,12 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    externalNativeBuild {
+        cmake {
+            version = "3.20.1"
+        }
+    }
+
     buildTypes {
         release {
             isMinifyEnabled = false
@@ -32,9 +38,13 @@ android {
     buildFeatures {
         viewBinding = true
     }
+    ndkVersion = "21.3.6528147";
 }
 
 dependencies {
+    implementation("com.airbnb.android:lottie:6.7.1")
+    implementation("com.squareup.okhttp3:okhttp:5.3.0")
+
 
     implementation(libs.appcompat)
     implementation(libs.material)
@@ -43,6 +53,7 @@ dependencies {
     implementation(libs.lifecycle.viewmodel.ktx)
     implementation(libs.navigation.fragment)
     implementation(libs.navigation.ui)
+    implementation(libs.gridlayout)
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)

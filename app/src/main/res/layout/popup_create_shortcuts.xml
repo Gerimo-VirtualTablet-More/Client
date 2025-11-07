@@ -3,138 +3,210 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
-
-
-
-
+    android:layout_height="match_parent"
+    android:paddingTop="?attr/actionBarSize">
 
     <ScrollView
         android:id="@+id/command_scrollview"
-        android:layout_width="600dp"
-        android:layout_height="600dp"
-        android:background="@drawable/round_corner_background"
-        android:backgroundTint="@color/dialogColor"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:fillViewport="true"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toTopOf="parent"
+        android:clipToPadding="false"
+        android:paddingVertical="16dp">
 
         <LinearLayout
-
-            android:id="@+id/shortCutLinearLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingHorizontal="16dp">
 
-            android:gravity="center"
-            android:orientation="vertical">
-
-            <ScrollView
+            <!-- Profile & Name Section -->
+            <com.google.android.material.card.MaterialCardView
+                style="?attr/materialCardViewOutlinedStyle"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent">
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:gravity="center"
-                    android:orientation="horizontal">
+                    android:orientation="vertical"
+                    android:padding="16dp">
 
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="16dp"
+                        android:text="Manage Shortcut Profile"
+                        android:textAlignment="center"
+                        android:textAppearance="?attr/textAppearanceHeadline6" />
+
+                    <Spinner
+                        android:id="@+id/shortcutProfileSpinner"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="16dp"
+                        android:padding="12dp"
+                        tools:text="Default" />
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/shortcut_name_layout"
+                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="16dp"
+                        android:hint="Name">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/shortcut_profile_input"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:inputType="text" />
+                    </com.google.android.material.textfield.TextInputLayout>
+                    
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+
+                        <Button
+                            android:id="@+id/createProfileButton"
+                            style="?attr/materialButtonOutlinedStyle"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginEnd="8dp"
+                            android:layout_weight="1"
+                            android:text="Create"
+                            app:icon="@drawable/add_to_new_profile_icon" />
+
+                        <Button
+                            android:id="@+id/delete_profile_button"
+                            style="?attr/materialButtonOutlinedStyle"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="8dp"
+                            android:layout_weight="1"
+                            android:text="Delete"
+                            app:icon="@drawable/delete_icon" />
+                    </LinearLayout>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Key Sequence Section -->
+            <com.google.android.material.card.MaterialCardView
+                style="?attr/materialCardViewOutlinedStyle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp">
+                
+                <LinearLayout
+                    android:id="@+id/seqeuenceLinearlayout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="16dp"
+                        android:text="Key Sequence"
+                        android:textAlignment="center"
+                        android:textAppearance="?attr/textAppearanceHeadline6" />
+
+                    <LinearLayout
+                        android:id="@+id/addDeleteLinearLayout"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+
+                        <Button
+                            android:id="@+id/addKeysequenceButton"
+                            style="?attr/materialButtonOutlinedStyle"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Add"
+                            app:icon="@drawable/addcommand_icon" />
+
+                    </LinearLayout>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- AI mode Section -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="24dp"
+                app:cardCornerRadius="16dp"
+                app:strokeWidth="1dp"
+                app:strokeColor="?attr/colorPrimary">
+                
+                <LinearLayout
+                    android:id="@+id/aiLinearLayout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/gradient_border"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="16dp"
+                        android:text="Use AI mode to create Shortcuts"
+                        android:textAlignment="center"
+                        android:textAppearance="?attr/textAppearanceHeadline6"
+                        android:textColor="?attr/colorPrimary" />
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="8dp"
+                        android:hint="Describe the shortcut, e.g. 'open settings'">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/aiSearchInput"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:inputType="text" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <Button
+                        android:id="@+id/aiSearchButton"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="AI Search" />
 
                 </LinearLayout>
-            </ScrollView>
+            </com.google.android.material.card.MaterialCardView>
 
-
-
-
-
-            <LinearLayout
+            <!-- Save Button -->
+            <Button
+                android:id="@+id/saveShortcutProfileButton"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:divider="@android:drawable/divider_horizontal_textfield"
-                android:gravity="center"
-                android:orientation="horizontal"
-                android:paddingTop="100dp"
+                android:layout_height="wrap_content"
+                android:paddingVertical="12dp"
+                android:text="Save Shortcut Profile"
+                style="@style/Widget.Material3.Button.ElevatedButton"
+                app:icon="@drawable/addcommand_icon" />
 
-                android:showDividers="middle">
-
-
-                <com.google.android.material.floatingactionbutton.FloatingActionButton
-                    android:id="@+id/addSpinnerButton"
-                    android:layout_width="100dp"
-                    android:layout_height="100dp"
-                    android:layout_gravity="center"
-                    android:clickable="true"
-                    app:fabCustomSize="100dp"
-                    app:srcCompat="@drawable/plus_icon" />
-
-                <com.google.android.material.floatingactionbutton.FloatingActionButton
-                    android:id="@+id/deleteSpinnerButton"
-                    android:layout_width="100dp"
-                    android:layout_height="100dp"
-                    android:layout_gravity="center"
-                    android:clickable="true"
-                    app:fabCustomSize="100dp"
-                    app:srcCompat="@drawable/delete_icon" />
-
-                <com.google.android.material.floatingactionbutton.FloatingActionButton
-                    android:id="@+id/saveCommandsButton"
-                    android:layout_width="100dp"
-                    android:layout_height="100dp"
-                    android:layout_gravity="center"
-                    android:clickable="true"
-                    app:fabCustomSize="100dp"
-                    app:srcCompat="@drawable/addcommand_icon" />
-
-
-
-
-            </LinearLayout>
-
-
-
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:orientation="vertical"
-                android:layout_height="200dp">
-
-
-                <TextView
-                    android:id="@+id/shortCutResultTextview"
-                    android:layout_width="match_parent"
-
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:textAlignment="center"
-                    android:textColor="@color/white" />
-
-
-
-
-
-
-            </LinearLayout>
-
-
-
+            <!-- TextView jetzt innerhalb des scrollbaren Bereichs -->
+            <TextView
+                android:id="@+id/textView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="16dp"
+                android:text="AI can make mistakes, so double-check it." 
+                android:textAppearance="?attr/textAppearanceCaption"/>
 
         </LinearLayout>
     </ScrollView>
-
-    <Button
-        android:id="@+id/delete_shortcutButton"
-        android:layout_width="335dp"
-        android:layout_height="125dp"
-        android:layout_marginTop="60dp"
-        android:backgroundTint="@color/red"
-        android:text="DELETE SHORTCUT"
-        android:visibility="invisible"
-        app:layout_constraintEnd_toEndOf="@+id/command_scrollview"
-        app:layout_constraintStart_toStartOf="@+id/command_scrollview"
-        app:layout_constraintTop_toBottomOf="@+id/command_scrollview" />
-
-
-
 
 </androidx.constraintlayout.widget.ConstraintLayout>

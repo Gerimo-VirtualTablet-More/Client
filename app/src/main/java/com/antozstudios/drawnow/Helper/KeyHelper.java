@@ -1,6 +1,7 @@
 package com.antozstudios.drawnow.Helper;
 
 import java.util.Arrays;
+import java.util.Objects;
 
 public class KeyHelper {
     public enum KeyCode {
@@ -211,16 +212,29 @@ public class KeyHelper {
             return code;
         }
 
-        public static KeyCode fromCode(int code) {
+        public static KeyCode getCode(int code) {
             for (KeyCode key : values()) {
                 if (key.code == code)
                     return key;
             }
             return null;
         }
+        public static int getValue(String keyCode) {
+            int index =0;
+           for(String g:getAllKeys()){
+               if(Objects.equals(keyCode, g)){
+                   return index;
+               }
+               index++;
+           }
+            return 0;
+        }
 
-        public static String[] getAllKeys(){
+
+
+        public static String[] getAllKeys() {
             return Arrays.stream(values()).map(Enum::name).toArray(String[]::new);
         }
+
     }
 }

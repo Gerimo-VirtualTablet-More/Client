@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+
+
+
+    <style name="TransparentDialog" parent="Theme.AppCompat.Dialog">
+        <item name="android:windowBackground">@android:color/transparent</item>
+
+        <!-- Explizite Button-Farben setzen -->
+        <item name="colorPrimary">@color/white</item>
+        <item name="colorSecondary">@color/white</item>
+        <item name="colorPrimaryVariant">@color/black</item>
+        <item name="colorOnPrimary">@color/black</item>
+    </style>
+
+    <style name="Gradient_Border">
+        <item name="android:background">@drawable/gradient_border</item>
+    </style>
+
+
+
+
+
+
+
+
+
+
+</resources>
