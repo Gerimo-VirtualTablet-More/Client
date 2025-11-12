@@ -1,41 +1,35 @@
 package com.antozstudios.drawnow.Activities;
-
-import static com.google.android.material.R.attr.materialButtonOutlinedStyle;
+import static android.view.View.INVISIBLE;
+import static android.view.View.VISIBLE;
 
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.content.res.ColorStateList;
-import android.graphics.Color;
 import android.net.nsd.NsdManager;
 import android.net.nsd.NsdServiceInfo;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.ext.SdkExtensions;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
-import android.widget.Toast;
+
+import androidx.annotation.RequiresExtension;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
-
 import com.antozstudios.drawnow.Helper.Records.HostData;
 import com.antozstudios.drawnow.Manager.PrefManager;
 import com.antozstudios.drawnow.Manager.ProfileManager;
 import com.antozstudios.drawnow.Manager.ServerHistoryManager;
 import com.antozstudios.drawnow.databinding.ActivityMenuBinding;
-
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.snackbar.Snackbar;
 
-import java.io.IOException;
-import java.net.InetSocketAddress;
-import java.net.Socket;
-import java.util.Collections;
-import java.util.LinkedHashSet;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class MenuActivity extends AppCompatActivity {
@@ -46,13 +40,45 @@ public class MenuActivity extends AppCompatActivity {
     private NsdManager nsdManager;
     private NsdManager.DiscoveryListener discoveryListener;
     private LinearLayout linearLayout;
-    private ServerHistoryManager serverHistoryManager;
-    private final Map<String, NsdServiceInfo> discoveredServices = new ConcurrentHashMap<>();
-    private final Set<String> lostServices = Collections.newSetFromMap(new ConcurrentHashMap<>());
+    private final Map<String,NsdServiceInfo> discoveredServices = new ConcurrentHashMap<>();
 
     ProfileManager profileManager;
     PrefManager prefManager;
 
+    private ActivityMenuBinding binding;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        binding = ActivityMenuBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
+        initManager();
+        initTheme();
+
+        binding.createProfilButton.setOnClickListener(view -> {
+            startActivity(new Intent(this, CreateProfileActivity.class));
+        });
+        linearLayout = binding.hostsLinearLayout;
+
+        nsdManager = (NsdManager) getSystemService(Context.NSD_SERVICE);
+        if (nsdManager == null) {
+            Log.e(TAG, "Failed to get NSD Manager!");
+        }
+        syncLoadingAnimation();
+
+        
+    }
+
+    private void initTheme() {
+        int theme = prefManager.getDataPref(PrefManager.DataPref.SETTINGS_CONFIG)
+                .getInt(PrefManager.KeyPref.THEME.getKey(), AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);
+        AppCompatDelegate.setDefaultNightMode(theme);
+    }
+
+    private void initManager() {
+        prefManager = PrefManager.getInstance(this);
+        profileManager = ProfileManager.getInstance(this);
+    }
 
     private class MyResolveListener implements NsdManager.ResolveListener {
         @Override
@@ -60,121 +86,95 @@ public class MenuActivity extends AppCompatActivity {
             Log.e(TAG, "Resolve failed for " + serviceInfo.getServiceName() + ": " + errorCode);
         }
 
+        @RequiresExtension(extension = Build.VERSION_CODES.TIRAMISU, version = 17)
         @Override
         public void onServiceResolved(NsdServiceInfo serviceInfo) {
             Log.i(TAG, "Service resolved: " + serviceInfo.getServiceName() + " @ " + serviceInfo.getHost());
-
-            if (lostServices.contains(serviceInfo.getServiceName())) {
-                Log.d(TAG, "Ignored resolution for a service that was already lost.");
-                return;
-            }
-
             discoveredServices.put(serviceInfo.getServiceName(), serviceInfo);
-            runOnUiThread(MenuActivity.this::updateHostList);
+
+            runOnUiThread(() -> addOrUpdateButton(serviceInfo));
         }
     }
 
-    private void updateHostList() {
-        linearLayout.removeAllViews();
-
-
-
-        // 1. Add servers from history
-        Set<HostData> combinedHosts = new LinkedHashSet<>(serverHistoryManager.getServerHistory());
-
-        // 2. Add newly discovered services
-        for (NsdServiceInfo serviceInfo : discoveredServices.values()) {
-            combinedHosts.add(new HostData(serviceInfo.getServiceName(), serviceInfo.getHost().getHostAddress(), serviceInfo.getPort()));
-        }
-
-
-
-        // 3. Update the UI with host buttons
-        for (HostData host : combinedHosts) {
-            MaterialButton button = new MaterialButton(this);
-
-
-            button.setText(host.hostName() != null ? host.hostName() : host.hostAddress());
-
-            button.setOnLongClickListener(new View.OnLongClickListener() {
-                @Override
-                public boolean onLongClick(View v) {
-                   new AlertDialog.Builder(v.getContext()).setTitle("Delete saved host.")
-                           .setMessage("Are you sure you want to delete this host?")
-                           .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                       @Override
-                       public void onClick(DialogInterface dialog, int which) {
-                           Snackbar.make(v, "Host deleted", Snackbar.LENGTH_SHORT).show();
-                           linearLayout.removeView(v);
-                           serverHistoryManager.deleteServer(host);
-
-                       }
-                   }).setNegativeButton("Cancel",null).show();
-
-                    return true;
-                }
-            });
-
-            button.setOnClickListener(v -> {
-
-
-
-                if(profileManager.getAllProfileNames().isEmpty() || prefManager.getDataPref(PrefManager.DataPref.PROFILE_CONFIG).getInt(PrefManager.KeyPref.CURRENT_INDEX_PROFILE.getKey(), -1)<0){
-                    Snackbar.make(MenuActivity.this, binding.getRoot(), "Create or select a profile first", Snackbar.LENGTH_SHORT).show();
+    @RequiresExtension(extension = Build.VERSION_CODES.TIRAMISU, version = 17)
+    private void addOrUpdateButton(NsdServiceInfo serviceInfo) {
+        String serviceName = serviceInfo.getServiceName();
+        // Prüfe, ob Button schon existiert
+        for (int i = 0; i < linearLayout.getChildCount(); i++) {
+            View child = linearLayout.getChildAt(i);
+            if (child instanceof Button) {
+                Button button = (Button) child;
+                if (serviceName.equals(button.getTag())) {
+                    // Existiert, ggf. aktualisieren
                     return;
                 }
-
-                button.setEnabled(false);
-
-                // Save the selected server to the history
-                serverHistoryManager.saveServer(host);
-
-                // Start the DrawActivity
-                Intent intent = new Intent(MenuActivity.this, DrawActivity.class);
-                intent.putExtra("com.antozstudios.drawnow.SERVER_IP", host.hostAddress());
-                intent.putExtra("com.antozstudios.drawnow.SERVER_PORT", host.port());
-
-                prefManager.putDataPref(PrefManager.DataPref.SHOW_HOSTS).putString(PrefManager.KeyPref.LAST_IP.getKey(), host.hostAddress())
-                        .putInt(PrefManager.KeyPref.LAST_PORT.getKey(), host.port()).commit();
-
-
-
-                startActivity(intent);
-            });
-            linearLayout.addView(button);
+            }
         }
-        MaterialButton offlineButton =null;
-        if(combinedHosts.isEmpty()){
-            // Add Offline Mode Button
+        MaterialButton button = new MaterialButton(this);
+        button.setTag(serviceName);
+        button.setText(serviceName);
+        button.setLayoutParams(new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+        ));
 
-                 offlineButton = new MaterialButton(this);
-            offlineButton.setText("Continue without host.");
-            offlineButton.setOnClickListener(v -> {
-                if (profileManager.getAllProfileNames().isEmpty() || prefManager.getDataPref(PrefManager.DataPref.PROFILE_CONFIG).getInt(PrefManager.KeyPref.CURRENT_INDEX_PROFILE.getKey(), -1) < 0) {
-                    Snackbar.make(binding.getRoot(), "Create or select a profile first", Snackbar.LENGTH_SHORT).show();
-                    return;
+        button.setOnClickListener(v -> {
+            if(profileManager.getAllProfileNames().isEmpty() ||
+                    prefManager.getDataPref(PrefManager.DataPref.PROFILE_CONFIG)
+                            .getInt(PrefManager.KeyPref.CURRENT_INDEX_PROFILE.getKey(), -1) < 0) {
+                Snackbar.make(binding.getRoot(), "Create or select a profile first", Snackbar.LENGTH_SHORT).show();
+                return;
+            }
+
+
+            Intent intent = new Intent(MenuActivity.this, DrawActivity.class);
+            String saveHostIP = serviceInfo.getHost().getHostAddress();
+
+            int savePort = serviceInfo.getPort();
+
+            intent.putExtra("com.antozstudios.drawnow.SERVER_IP", saveHostIP);
+            intent.putExtra("com.antozstudios.drawnow.SERVER_PORT", savePort);
+
+            prefManager.putDataPref(PrefManager.DataPref.SHOW_HOSTS)
+                    .putString(PrefManager.KeyPref.LAST_IP.getKey(), saveHostIP)
+                    .putInt(PrefManager.KeyPref.LAST_PORT.getKey(), savePort).commit();
+
+            startActivity(intent);
+        });
+        linearLayout.addView(button);
+
+        syncLoadingAnimation();
+    }
+
+    private void syncLoadingAnimation() {
+        if (linearLayout.getChildCount() > 0) {
+            binding.loadingAnimation.setVisibility(INVISIBLE);
+            binding.loadingAnimation.cancelAnimation();
+        } else {
+            binding.loadingAnimation.setVisibility(VISIBLE);
+            binding.loadingAnimation.playAnimation();
+        }
+    }
+
+    private void removeButton(String serviceName) {
+        for(int i = 0; i < linearLayout.getChildCount(); i++) {
+            View child = linearLayout.getChildAt(i);
+            if(child instanceof Button) {
+                Button button = (Button) child;
+                if(serviceName.equals(button.getTag())) {
+                    linearLayout.removeView(button);
+                    break;
                 }
-                Intent intent = new Intent(MenuActivity.this, DrawActivity.class);
-                startActivity(intent);
-            });
-            linearLayout.addView(offlineButton);
-        }else{
-            if(offlineButton!=null)
-                linearLayout.removeView(offlineButton);
+            }
         }
+        syncLoadingAnimation();
     }
 
     private void startDiscovery() {
         if (nsdManager != null) {
             Log.d(TAG, "Starting service discovery...");
             initializeDiscoveryListener();
-
             discoveredServices.clear();
-            lostServices.clear();
-
-            // Immediately display saved servers before starting network discovery
-            updateHostList();
-
             nsdManager.discoverServices(SERVICE_TYPE, NsdManager.PROTOCOL_DNS_SD, discoveryListener);
         } else {
             Log.e(TAG, "NSD Manager is null, cannot start discovery.");
@@ -202,15 +202,17 @@ public class MenuActivity extends AppCompatActivity {
             @Override
             public void onServiceFound(NsdServiceInfo service) {
                 Log.d(TAG, "Service found: " + service.getServiceName());
-                nsdManager.resolveService(service, new MyResolveListener());
+                if (!discoveredServices.containsKey(service.getServiceName())) {
+                    nsdManager.resolveService(service, new MyResolveListener());
+                }
             }
 
             @Override
             public void onServiceLost(NsdServiceInfo service) {
                 Log.e(TAG, "Service lost: " + service.getServiceName());
-                lostServices.add(service.getServiceName());
-                if (discoveredServices.remove(service.getServiceName()) != null) {
-                    runOnUiThread(MenuActivity.this::updateHostList);
+                if(discoveredServices.containsKey(service.getServiceName())){
+                    discoveredServices.remove(service.getServiceName());
+                    runOnUiThread(() -> removeButton(service.getServiceName()));
                 }
             }
 
@@ -232,52 +234,27 @@ public class MenuActivity extends AppCompatActivity {
         };
     }
 
-    private ActivityMenuBinding binding;
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-
-        prefManager = PrefManager.getInstance(this);
-
-        profileManager = ProfileManager.getInstance(this);
-
-        Log.d("aaaaaa",profileManager.readFile());
-
-        int theme = prefManager.getDataPref(PrefManager.DataPref.SETTINGS_CONFIG).getInt(PrefManager.KeyPref.THEME.getKey(), AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);
-        AppCompatDelegate.setDefaultNightMode(theme);
-
-        // Always set up the UI first, so the user doesn't see a blank screen.
-        setupUI();
-        linearLayout = binding.hostsLinearLayout;
-
-        serverHistoryManager = ServerHistoryManager.getInstance(this);
-        nsdManager = (NsdManager) getSystemService(Context.NSD_SERVICE);
-        if (nsdManager == null) {
-            Log.e(TAG, "Failed to get NSD Manager!");
+    private Handler handler = new Handler(Looper.getMainLooper());
+    private final Runnable restartDiscovery = new Runnable() {
+        @Override
+        public void run() {
+            stopDiscovery();
+            startDiscovery();
+            handler.postDelayed(this, 2000);
         }
-    }
-
-    private void setupUI() {
-        binding = ActivityMenuBinding.inflate(getLayoutInflater());
-        setContentView(binding.getRoot());
-
-        binding.createProfilButton.setOnClickListener(view -> {
-            startActivity(new Intent(this, CreateProfileActivity.class));
-        });
-    }
+    };
 
     @Override
     protected void onResume() {
         super.onResume();
         startDiscovery();
+        handler.postDelayed(restartDiscovery, 2000);
     }
 
     @Override
     protected void onPause() {
-        if (nsdManager != null) { // Check if nsdManager is initialized
-            stopDiscovery();
-        }
+        handler.removeCallbacks(restartDiscovery);
+        stopDiscovery();
         super.onPause();
     }
 }
