@@ -21,6 +21,7 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:gravity="center"
             android:orientation="vertical"
             android:paddingHorizontal="16dp">
 
@@ -28,6 +29,7 @@
             <com.google.android.material.card.MaterialCardView
                 style="?attr/materialCardViewOutlinedStyle"
                 android:layout_width="match_parent"
+                app:cardElevation="4dp"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp">
 
@@ -67,15 +69,14 @@
                             android:layout_height="wrap_content"
                             android:inputType="text" />
                     </com.google.android.material.textfield.TextInputLayout>
-                    
+
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="horizontal">
 
-                        <Button
+                        <com.google.android.material.button.MaterialButton
                             android:id="@+id/createProfileButton"
-                            style="?attr/materialButtonOutlinedStyle"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_marginEnd="8dp"
@@ -83,9 +84,8 @@
                             android:text="Create"
                             app:icon="@drawable/add_to_new_profile_icon" />
 
-                        <Button
+                        <com.google.android.material.button.MaterialButton
                             android:id="@+id/delete_profile_button"
-                            style="?attr/materialButtonOutlinedStyle"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_marginStart="8dp"
@@ -99,16 +99,19 @@
             <!-- Key Sequence Section -->
             <com.google.android.material.card.MaterialCardView
                 style="?attr/materialCardViewOutlinedStyle"
+                app:cardElevation="4dp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp">
-                
+
                 <LinearLayout
                     android:id="@+id/seqeuenceLinearlayout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
                     android:padding="16dp">
+
+
 
                     <TextView
                         android:layout_width="match_parent"
@@ -124,14 +127,13 @@
                         android:layout_height="wrap_content"
                         android:orientation="horizontal">
 
-                        <Button
+                        <com.google.android.material.button.MaterialButton
                             android:id="@+id/addKeysequenceButton"
-                            style="?attr/materialButtonOutlinedStyle"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:text="Add"
-                            app:icon="@drawable/addcommand_icon" />
+                            app:icon="@drawable/plus_icon" />
 
                     </LinearLayout>
                 </LinearLayout>
@@ -139,18 +141,16 @@
 
             <!-- AI mode Section -->
             <com.google.android.material.card.MaterialCardView
+                style="?attr/materialCardViewOutlinedStyle"
                 android:layout_width="match_parent"
+                app:cardElevation="4dp"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="24dp"
-                app:cardCornerRadius="16dp"
-                app:strokeWidth="1dp"
-                app:strokeColor="?attr/colorPrimary">
-                
+                android:layout_marginBottom="16dp">
+
                 <LinearLayout
                     android:id="@+id/aiLinearLayout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:background="@drawable/gradient_border"
                     android:orientation="vertical"
                     android:padding="16dp">
 
@@ -163,19 +163,36 @@
                         android:textAppearance="?attr/textAppearanceHeadline6"
                         android:textColor="?attr/colorPrimary" />
 
-                    <com.google.android.material.textfield.TextInputLayout
-                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                    <FrameLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginBottom="8dp"
-                        android:hint="Describe the shortcut, e.g. 'open settings'">
+                        android:layout_marginBottom="8dp">
 
-                        <com.google.android.material.textfield.TextInputEditText
-                            android:id="@+id/aiSearchInput"
+                        <com.google.android.material.textfield.TextInputLayout
+                            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                             android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:inputType="text" />
-                    </com.google.android.material.textfield.TextInputLayout>
+                            android:layout_height="wrap_content">
+
+                            <com.google.android.material.textfield.TextInputEditText
+                                android:id="@+id/aiSearchInput"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:inputType="text" />
+                        </com.google.android.material.textfield.TextInputLayout>
+
+                        <com.airbnb.lottie.LottieAnimationView
+                            android:id="@+id/loading_animation"
+                            android:layout_width="40dp"
+                            android:layout_height="40dp"
+                            android:layout_gravity="start|center_vertical"
+                            android:layout_marginEnd="8dp"
+                            android:visibility="gone"
+                            app:lottie_autoPlay="true"
+                            app:lottie_fileName="Loading.json"
+                            app:lottie_loop="true"
+                            tools:visibility="visible" />
+
+                    </FrameLayout>
 
                     <Button
                         android:id="@+id/aiSearchButton"
@@ -193,7 +210,6 @@
                 android:layout_height="wrap_content"
                 android:paddingVertical="12dp"
                 android:text="Save Shortcut Profile"
-                style="@style/Widget.Material3.Button.ElevatedButton"
                 app:icon="@drawable/addcommand_icon" />
 
             <!-- TextView jetzt innerhalb des scrollbaren Bereichs -->
@@ -203,7 +219,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
                 android:layout_marginTop="16dp"
-                android:text="AI can make mistakes, so double-check it." 
+                android:text="AI can make mistakes, so double-check it."
                 android:textAppearance="?attr/textAppearanceCaption"/>
 
         </LinearLayout>

@@ -16,4 +16,5 @@
     <string name="pinch_mode">Pinch mode</string>
     <string name="open_shortcut">Open shortcut</string>
     <string name="tools">Tools</string>
+    <string name="offline">Continue without connection</string>
 </resources>

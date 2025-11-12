@@ -9,89 +9,110 @@
     android:paddingTop="?attr/actionBarSize"
     tools:context=".Activities.DrawActivity">
 
-    <!-- Linke, fixierte vertikale Toolbar -->
-    <LinearLayout
-        android:id="@+id/left_toolbar"
-        android:layout_width="88dp"
-        android:layout_height="0dp"
-        android:background="?attr/colorSurface"
-        android:gravity="center_horizontal"
-        android:orientation="vertical"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="@+id/ToolButton"
-        app:layout_constraintStart_toStartOf="@+id/ToolButton"
-        app:layout_constraintTop_toBottomOf="@+id/ToolButton">
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/left_toolbar_scrollview"
+        style="?attr/materialCardViewOutlinedStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
 
-        <!-- NEUER BUTTON ZUM ÖFFNEN DER SIDEBAR -->
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/sidebar"
-            style="@style/Theme.DrawNow.CustomMaterialButton"
-            app:backgroundTint="?attr/colorSurface"
-            app:icon="@drawable/delete_icon"
-            app:iconSize="24dp"
-            app:iconTint="?attr/colorOnSurface" />
+            <LinearLayout
+                android:id="@+id/left_toolbar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center_horizontal"
+                android:orientation="vertical">
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/openShortcutButton"
-            style="@style/Theme.DrawNow.CustomMaterialButton"
-            app:backgroundTint="?attr/colorSurface"
-            app:icon="@drawable/addcommand_icon"
-            app:iconSize="24dp"
-            app:iconTint="?attr/colorOnSurface" />
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/ToolButton"
+                    style="@style/Theme.DrawNow.CustomMaterialButton"
+                    app:backgroundTint="?attr/colorSurface"
+                    app:icon="@drawable/tool_icon"
+                    app:iconGravity="textStart"
+                    app:iconPadding="0dp"
+                    app:iconSize="@dimen/iconSize"
+                    app:iconTint="?attr/colorOnSurface" />
 
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/undoButton"
+                    style="@style/Theme.DrawNow.CustomMaterialButton"
+                    app:backgroundTint="?attr/colorSurface"
+                    app:icon="@drawable/undo_icon"
+                    app:iconGravity="textStart"
+                    app:iconPadding="0dp"
+                    app:iconSize="@dimen/iconSize"
+                    app:iconTint="?attr/colorOnSurface" />
 
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/redoButton"
+                    style="@style/Theme.DrawNow.CustomMaterialButton"
+                    app:backgroundTint="?attr/colorSurface"
+                    app:icon="@drawable/redo_icon"
+                    app:iconGravity="textStart"
+                    app:iconPadding="0dp"
+                    app:iconSize="@dimen/iconSize"
+                    app:iconTint="?attr/colorOnSurface" />
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/undoButton"
-            style="@style/Theme.DrawNow.CustomMaterialButton"
-            app:backgroundTint="?attr/colorSurface"
-            app:icon="@drawable/undo_icon"
-            app:iconSize="24dp"
-            app:iconTint="?attr/colorOnSurface" />
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/pinchModeButton"
+                    style="@style/Theme.DrawNow.CustomMaterialButton"
+                    app:backgroundTint="?attr/colorSurface"
+                    app:icon="@drawable/pinch_icon"
+                    app:iconGravity="textStart"
+                    app:iconPadding="0dp"
+                    app:iconSize="@dimen/iconSize"
+                    app:iconTint="?attr/colorOnSurface" />
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/redoButton"
-            style="@style/Theme.DrawNow.CustomMaterialButton"
-            app:backgroundTint="?attr/colorSurface"
-            app:icon="@drawable/redo_icon"
-            app:iconSize="24dp"
-            app:iconTint="?attr/colorOnSurface" />
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/showCursorButton"
+                    style="@style/Theme.DrawNow.CustomMaterialButton"
+                    app:backgroundTint="?attr/colorSurface"
+                    app:icon="@drawable/cursor"
+                    app:iconGravity="textStart"
+                    app:iconPadding="0dp"
+                    app:iconSize="@dimen/iconSize"
+                    app:iconTint="?attr/colorOnSurface" />
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/pinchModeButton"
-            style="@style/Theme.DrawNow.CustomMaterialButton"
-            app:backgroundTint="?attr/colorSurface"
-            app:icon="@drawable/pinch_icon"
-            app:iconSize="24dp"
-            app:iconTint="?attr/colorOnSurface" />
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/openShortcutButton"
+                    style="@style/Theme.DrawNow.CustomMaterialButton"
+                    app:backgroundTint="?attr/colorSurface"
+                    app:icon="@drawable/addcommand_icon"
+                    app:iconGravity="textStart"
+                    app:iconPadding="0dp"
+                    app:iconSize="@dimen/iconSize"
+                    app:iconTint="?attr/colorOnSurface" />
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/showCursorButton"
-            style="@style/Theme.DrawNow.CustomMaterialButton"
-            app:backgroundTint="?attr/colorSurface"
-            app:icon="@drawable/cursor"
-            app:iconSize="24dp"
-            app:iconTint="?attr/colorOnSurface" />
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/shortcutToolbarButton"
+                    style="@style/Theme.DrawNow.CustomMaterialButton"
+                    app:backgroundTint="?attr/colorSurface"
+                    app:icon="@drawable/shortcut_bool"
+                    app:iconGravity="textStart"
+                    app:iconPadding="0dp"
+                    app:iconSize="@dimen/iconSize"
+                    app:iconTint="?attr/colorOnSurface" />
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/settingsButton"
-            style="@style/Theme.DrawNow.CustomMaterialButton"
-            android:layout_marginBottom="10dp"
-            app:backgroundTint="?attr/colorSurface"
-            app:icon="@drawable/settings_icon"
-            app:iconSize="24dp"
-            app:iconTint="?attr/colorOnSurface" />
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/settingsButton"
+                    style="@style/Theme.DrawNow.CustomMaterialButton"
+                    android:layout_marginBottom="10dp"
+                    app:backgroundTint="?attr/colorSurface"
+                    app:icon="@drawable/settings_icon"
+                    app:iconGravity="textStart"
+                    app:iconPadding="0dp"
+                    app:iconSize="@dimen/iconSize"
+                    app:iconTint="?attr/colorOnSurface" />
 
-        <Space
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:layout_weight="1" />
-    </LinearLayout>
+            </LinearLayout>
+        </ScrollView>
+    </com.google.android.material.card.MaterialCardView>
 
-    <!-- RECHTE SIDEBAR (Standardmäßig unsichtbar) -->
-
-    <!-- Deine vorhandenen Cursors etc. -->
     <ImageView
         android:id="@+id/cursor_image"
         android:layout_width="wrap_content"
@@ -122,17 +143,46 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>
 
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/ToolButton"
-        style="@style/Widget.Material3.Button.IconButton.Outlined"
-        android:layout_width="56dp"
-        android:layout_height="56dp"
-        app:backgroundTint="?attr/colorSurface"
-        app:icon="@drawable/tool_icon"
-        app:iconSize="24dp"
-        app:iconTint="?attr/colorOnSurface"
+    <Spinner
+        android:id="@+id/shortcut_profile_spinner"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="8dp"
+        android:minHeight="48dp"
+        android:visibility="gone"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/left_toolbar_scrollview"
         app:layout_constraintTop_toTopOf="parent"
-        app:strokeWidth="5dp" />
+        tools:visibility="visible" />
+
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/right_toolbar"
+        style="?attr/materialCardViewOutlinedStyle"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:visibility="gone"
+        android:layout_margin="8dp"
+
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/left_toolbar_scrollview"
+        app:layout_constraintTop_toBottomOf="@+id/shortcut_profile_spinner"
+        tools:visibility="visible">
+
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <androidx.gridlayout.widget.GridLayout
+                android:id="@+id/shortcut_buttons_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:rowCount="4">
+
+
+            </androidx.gridlayout.widget.GridLayout>
+        </ScrollView>
+    </com.google.android.material.card.MaterialCardView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

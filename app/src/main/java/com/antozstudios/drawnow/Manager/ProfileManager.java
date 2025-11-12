@@ -6,6 +6,13 @@ import android.content.Context;
 import android.util.Log;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.view.ContextThemeWrapper;
+import androidx.gridlayout.widget.GridLayout;
+
+import com.antozstudios.drawnow.Helper.HelperMethods;
+import com.antozstudios.drawnow.Helper.KeyHelper;
+import com.antozstudios.drawnow.R;
+import com.google.android.material.button.MaterialButton;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -22,6 +29,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.BlockingQueue;
 
 public class ProfileManager {
 
@@ -29,6 +37,7 @@ public class ProfileManager {
     private final String fileName = "Profiles.json";
     private static ProfileManager instance;
     private JSONObject jsonObject;
+    PrefManager prefManager;
 
     public static synchronized ProfileManager getInstance(AppCompatActivity appCompatActivity) {
         if (instance == null) {
@@ -40,12 +49,12 @@ public class ProfileManager {
     private ProfileManager(Context context) {
         this.context = context;
         init();
+        prefManager = PrefManager.getInstance(context);
     }
 
     public void init() {
         File file = context.getFileStreamPath(fileName);
         if (file == null || !file.exists()) {
-            // File does not exist, create a new empty structure
             try {
                 jsonObject = new JSONObject();
                 JSONObject profiles = new JSONObject();
@@ -55,7 +64,6 @@ public class ProfileManager {
                 Log.e("ProfileManager", "Error creating initial JSON structure", e);
             }
         } else {
-            // File exists, read it
             try {
                 String jsonString = readFile();
                 if (jsonString.isEmpty()) {
@@ -69,7 +77,8 @@ public class ProfileManager {
                 jsonObject = new JSONObject();
                 try {
                     jsonObject.put("profiles", new JSONObject());
-                } catch (JSONException jsonException) {}
+                } catch (JSONException ignored) {
+                }
             }
         }
     }
@@ -167,9 +176,6 @@ public class ProfileManager {
         }
     }
 
-    //---------- NEUE CONVENIENCE-METHODEN ----------
-
-    // ShortcutProfile anlegen
     public void createShortcutProfile(String profileName, String shortcutProfileName) {
         if (shortcutProfileName == null || shortcutProfileName.trim().isEmpty()) {
             Log.w("ProfileManager", "Shortcut profile name cannot be empty");
@@ -189,7 +195,6 @@ public class ProfileManager {
         }
     }
 
-    // ShortcutProfile löschen
     public void deleteShortcutProfile(String profileName, String shortcutProfileName) {
         try {
             JSONObject profiles = jsonObject.getJSONObject("profiles");
@@ -206,7 +211,6 @@ public class ProfileManager {
         }
     }
 
-    // ShortcutProfile umbenennen
     public boolean renameShortcutProfile(String profileName, String oldName, String newName) {
         if (newName == null || newName.trim().isEmpty()) return false;
         try {
@@ -228,7 +232,6 @@ public class ProfileManager {
         return false;
     }
 
-    // ShortcutProfile-Existenz prüfen
     public boolean shortcutProfileExists(String profileName, String shortcutProfileName) {
         try {
             JSONObject profiles = jsonObject.getJSONObject("profiles");
@@ -243,7 +246,6 @@ public class ProfileManager {
         return false;
     }
 
-    // ShortcutProfile abrufen
     public JSONObject getShortcutProfile(String profileName, String shortcutProfileName) {
         try {
             JSONObject profiles = jsonObject.getJSONObject("profiles");
@@ -260,7 +262,20 @@ public class ProfileManager {
         return null;
     }
 
-    // ShortcutProfile Befehle als Map abrufen
+    public void updateShortcutProfile(String profileName, String shortcutProfileName, JSONObject newShortcutData) {
+        try {
+            JSONObject profiles = jsonObject.getJSONObject("profiles");
+            if (profiles.has(profileName)) {
+                JSONObject profile = profiles.getJSONObject(profileName);
+                JSONObject shortcutProfiles = profile.getJSONObject("shortCutProfiles");
+                shortcutProfiles.put(shortcutProfileName, newShortcutData);
+                saveJson();
+            }
+        } catch (JSONException e) {
+            Log.e("ProfileManager", "Error updating shortcut profile", e);
+        }
+    }
+
     public Map<String, String> getShortcutCommands(String profileName, String shortcutProfileName) {
         Map<String, String> commands = new HashMap<>();
         try {
@@ -283,7 +298,6 @@ public class ProfileManager {
         return commands;
     }
 
-    // Einzelnen Shortcut zu einem ShortcutProfile hinzufügen/aktualisieren
     public void addCommandToShortcut(String profileName, String shortcutProfileName,
                                      String commandName, String commandSequence) {
         if (commandName == null || commandName.trim().isEmpty()
@@ -306,7 +320,6 @@ public class ProfileManager {
         }
     }
 
-    // Einzelnen Shortcut aus ShortcutProfile löschen
     public void removeCommandFromShortcut(String profileName, String shortcutProfileName, String commandName) {
         try {
             JSONObject profiles = jsonObject.getJSONObject("profiles");
@@ -329,7 +342,7 @@ public class ProfileManager {
     public boolean profileExists(String profileName) {
         try {
             if (profileName == null || profileName.trim().isEmpty()) return false;
-            return jsonObject.getJSONObject("profiles").has(profileName);
+            return jsonObject.getJSONObject("profiles").has(profileName.toLowerCase());
         } catch (JSONException e) {
             return false;
         }
@@ -357,7 +370,6 @@ public class ProfileManager {
         return stringBuilder.toString();
     }
 
-    // Profile umbenennen (optional)
     public boolean renameProfile(String oldName, String newName) {
         if (newName == null || newName.trim().isEmpty()) return false;
         try {
@@ -375,8 +387,54 @@ public class ProfileManager {
         return false;
     }
 
-    // Zugriff auf den gesamten JSON-Objekt für fortgeschrittene Nutzung
     public JSONObject getRawJsonObject() {
         return jsonObject;
+    }
+
+    public void loadShortcutButtons(Context context, GridLayout shortcutButtonsLayout, String profileName, BlockingQueue<String> sendQueue) {
+        shortcutButtonsLayout.removeAllViews();
+
+        String currentProfile = prefManager.getDataPref(PrefManager.DataPref.PROFILE_CONFIG)
+                .getString(PrefManager.KeyPref.CURRENT_PROFILE.toString(), "");
+
+        JSONObject shortcuts = getShortcutProfile(currentProfile, profileName);
+        if (shortcuts == null) {
+            return;
+        }
+
+        Iterator<String> keys = shortcuts.keys();
+        while (keys.hasNext()) {
+            String uniqueKey = keys.next();
+            String commandName = uniqueKey.split("___")[0]; // Extract real name
+            String commandSequence = shortcuts.optString(uniqueKey);
+
+            MaterialButton shortcutButton = new MaterialButton(new ContextThemeWrapper(context, R.style.Widget_App_MaterialButton_Outlined));
+            shortcutButton.setText(commandName);
+
+            GridLayout.LayoutParams params = new GridLayout.LayoutParams();
+            params.height = GridLayout.LayoutParams.WRAP_CONTENT;
+            params.width = 0;
+            params.columnSpec = GridLayout.spec(GridLayout.UNDEFINED, 1f);
+            int margin = (int) (4 * context.getResources().getDisplayMetrics().density);
+            params.setMargins(margin, margin, margin, margin);
+            shortcutButton.setLayoutParams(params);
+
+            shortcutButton.setOnClickListener(v -> {
+                String[] keyStrings = commandSequence.split(";");
+                List<KeyHelper.KeyCode> keyCodes = new ArrayList<>();
+                for (String key : keyStrings) {
+                    try {
+                        keyCodes.add(KeyHelper.KeyCode.valueOf(key));
+                    } catch (IllegalArgumentException e) {
+                        Log.e("ProfileManager", "Invalid key code in shortcut: " + key, e);
+                    }
+                }
+                if (!keyCodes.isEmpty()) {
+                    sendQueue.offer(HelperMethods.sendData(HelperMethods.SET_ACTION.HOTKEY, keyCodes.toArray(new KeyHelper.KeyCode[0])));
+                }
+            });
+
+            shortcutButtonsLayout.addView(shortcutButton);
+        }
     }
 }

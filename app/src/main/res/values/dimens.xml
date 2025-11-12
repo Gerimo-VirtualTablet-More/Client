@@ -5,7 +5,7 @@
 
     <dimen name="default_corner_radius">16dp</dimen>
     <dimen name="layout_width">200dp</dimen>
-
+    <dimen name="iconSize">48dp</dimen>
 
 
 </resources>

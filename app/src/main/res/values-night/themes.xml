@@ -28,5 +28,16 @@
         <item name="colorOutline">@color/dark_outline</item>
         <item name="android:statusBarColor">@android:color/transparent</item>
         <item name="android:navigationBarColor">@android:color/transparent</item>
+
+        <item name="materialCardViewOutlinedStyle">@style/Widget.App.MaterialCardView.Outlined</item>
+        <item name="materialButtonOutlinedStyle">@style/Widget.App.MaterialButton.Outlined</item>
+    </style>
+
+    <style name="Widget.App.MaterialCardView.Outlined" parent="Widget.Material3.CardView.Outlined">
+        <item name="strokeWidth">2dp</item>
+    </style>
+
+    <style name="Widget.App.MaterialButton.Outlined" parent="Widget.Material3.Button.OutlinedButton">
+        <item name="strokeWidth">2dp</item>
     </style>
 </resources>

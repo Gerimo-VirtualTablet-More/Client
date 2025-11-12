@@ -3,6 +3,9 @@ package com.antozstudios.drawnow.Manager;
 import android.content.Context;
 import android.content.SharedPreferences;
 
+import androidx.activity.result.ActivityResult;
+import androidx.appcompat.widget.ResourceManagerInternal;
+
 public class PrefManager {
 
 
@@ -12,6 +15,7 @@ public class PrefManager {
 
     public static enum DataPref {
 
+        SHOW_HOSTS("SHOW_HOSTS"),
         SETTINGS_CONFIG("SETTINGS_CONFIG"),
         PROFILE_CONFIG("PROFILE_CONFIG");
 
@@ -27,12 +31,23 @@ public class PrefManager {
     }
 
     public static enum KeyPref {
-        CURRENT_SHORTCUTPROFILE("CURRENT_SHORTCUTPROFILE", 0),
+
+
+        LAST_IP("LAST_IP"),
+        LAST_PORT("LAST_PORT"),
+
+        CURRENT_SHORTPROFILE("CURRENT_SHORTPPROFILE",0),
+
+        BACKGROUND("BACKGROUND"),
+        THEME("THEME"),
+        CURRENT_SCREEN_INDEX("CURRENT_SCREEN_INDEX"),
+        MONITOR_DATA("MONITOR_DATA"),
         CURRENT_PROFILE("CURRENT_PROFILE", 1),
         CURRENT_INDEX_PROFILE("CURRENT_INDEX_PROFILE", 2),
 
         API_KEY("API_KEY"),
         CURRENT_TOOLBAR_POSITION("CURRENT_TOOLBAR_POSITION");
+
 
 
         private final String key;
@@ -54,9 +69,7 @@ public class PrefManager {
             return key;
         }
 
-        public int getIndex() {
-            return index;
-        }
+
     }
 
 

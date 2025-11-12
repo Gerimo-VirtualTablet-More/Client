@@ -4,11 +4,6 @@ import static com.antozstudios.drawnow.Helper.JsonPayload.buildJsonPayload;
 import static com.antozstudios.drawnow.Helper.KeyHelper.KeyCode.getAllKeys;
 import static com.antozstudios.drawnow.Helper.KeyHelper.KeyCode.getValue;
 
-import android.animation.ValueAnimator;
-import android.graphics.Color;
-import android.graphics.drawable.GradientDrawable;
-import android.graphics.drawable.LayerDrawable;
-import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -18,11 +13,9 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.SpinnerAdapter;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -30,6 +23,7 @@ import com.antozstudios.drawnow.Manager.PrefManager;
 import com.antozstudios.drawnow.Manager.ProfileManager;
 import com.antozstudios.drawnow.R;
 import com.antozstudios.drawnow.databinding.PopupCreateShortcutsBinding;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputEditText;
 
 import org.json.JSONArray;
@@ -39,6 +33,7 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.Objects;
+import java.util.UUID;
 
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -54,8 +49,11 @@ public class ShortcutActivity extends AppCompatActivity {
     PopupCreateShortcutsBinding popupCreateShortcutsBinding;
     PrefManager prefManager;
     ProfileManager profileManager;
-    private ValueAnimator animator;
 
+    private String getCurrentProfileName() {
+        return prefManager.getDataPref(PrefManager.DataPref.PROFILE_CONFIG)
+                .getString(PrefManager.KeyPref.CURRENT_PROFILE.toString(), "");
+    }
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -68,40 +66,57 @@ public class ShortcutActivity extends AppCompatActivity {
         spinnerAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, getAllKeys());
         profileManager = ProfileManager.getInstance((AppCompatActivity) this);
 
-        String currentProfile = prefManager.getDataPref(PrefManager.DataPref.PROFILE_CONFIG)
-                .getString(PrefManager.KeyPref.CURRENT_PROFILE.toString(),"");
-
-        ArrayAdapter<String> getShortcutProfiles = new ArrayAdapter<>(this, androidx.appcompat.R.layout.support_simple_spinner_dropdown_item,profileManager.getShortcutProfileNames(currentProfile));
-
+        ArrayAdapter<String> getShortcutProfiles = new ArrayAdapter<>(this, androidx.appcompat.R.layout.support_simple_spinner_dropdown_item, profileManager.getShortcutProfileNames(getCurrentProfileName()));
 
         popupCreateShortcutsBinding.shortcutProfileSpinner.setAdapter(getShortcutProfiles);
 
+        String lastSelectedProfile = prefManager.getDataPref(PrefManager.DataPref.PROFILE_CONFIG).getString(PrefManager.KeyPref.CURRENT_SHORTPROFILE.getKey(), "");
+        if (!lastSelectedProfile.isEmpty()) {
+            int spinnerPosition = getShortcutProfiles.getPosition(lastSelectedProfile);
+            if (spinnerPosition >= 0) {
+                popupCreateShortcutsBinding.shortcutProfileSpinner.setSelection(spinnerPosition);
+            }
+        }
+
         popupCreateShortcutsBinding.createProfileButton.setOnClickListener((view) -> {
-            String profileInput = Objects.requireNonNull(popupCreateShortcutsBinding.shortcutProfileInput.getText()).toString();
-            if (!profileInput.isEmpty()) {
-                profileManager.createShortcutProfile(currentProfile, profileInput);
+            String shortcutProfileInput = Objects.requireNonNull(popupCreateShortcutsBinding.shortcutProfileInput.getText()).toString().toLowerCase();
+            if (!shortcutProfileInput.isEmpty()) {
+                String currentProfile = getCurrentProfileName();
+                if (profileManager.shortcutProfileExists(currentProfile, shortcutProfileInput)) {
+                    runOnUiThread(() -> {
+                        Snackbar.make(view, "Profile already exists", Snackbar.LENGTH_SHORT).show();
+                    });
+                    return;
+                }
 
-                // Adapter mit der neuen, aktualisierten Liste von Profilen aktualisieren
-                ArrayAdapter<String> adapter = (ArrayAdapter<String>) popupCreateShortcutsBinding.shortcutProfileSpinner.getAdapter();
-                adapter.clear();
-                adapter.addAll(profileManager.getShortcutProfileNames(currentProfile));
-                adapter.notifyDataSetChanged();
+                profileManager.createShortcutProfile(currentProfile, shortcutProfileInput);
 
-                // Optional: Das Eingabefeld leeren
+                ArrayAdapter<String> updatedAdapter = new ArrayAdapter<>(
+                        this,
+                        androidx.appcompat.R.layout.support_simple_spinner_dropdown_item,
+                        profileManager.getShortcutProfileNames(currentProfile)
+                );
+                popupCreateShortcutsBinding.shortcutProfileSpinner.setAdapter(updatedAdapter);
+
+                int newPosition = updatedAdapter.getPosition(shortcutProfileInput);
+                if (newPosition >= 0) {
+                    popupCreateShortcutsBinding.shortcutProfileSpinner.setSelection(newPosition);
+                }
                 popupCreateShortcutsBinding.shortcutProfileInput.setText("");
-            }else{
-                view.post(()->{
-                    Toast.makeText(this, "Please enter a name", Toast.LENGTH_SHORT).show();
+            } else {
+                view.post(() -> {
+                    Snackbar.make(view, "Please enter a name", Snackbar.LENGTH_SHORT).show();
                 });
             }
         });
 
         popupCreateShortcutsBinding.deleteProfileButton.setOnClickListener((view) -> {
             if (popupCreateShortcutsBinding.shortcutProfileSpinner.getSelectedItem() == null) {
-                Toast.makeText(this, "No profile selected to delete.", Toast.LENGTH_SHORT).show();
+                Snackbar.make(view, "No profile selected to delete.", Snackbar.LENGTH_SHORT).show();
                 return;
             }
             String getSpinnerValue = popupCreateShortcutsBinding.shortcutProfileSpinner.getSelectedItem().toString();
+            String currentProfile = getCurrentProfileName();
             if (profileManager.getShortcutProfile(currentProfile, getSpinnerValue) != null) {
                 new AlertDialog.Builder(this)
                         .setTitle("Delete Shortcut Profile")
@@ -112,14 +127,14 @@ public class ShortcutActivity extends AppCompatActivity {
                             adapter.clear();
                             adapter.addAll(profileManager.getShortcutProfileNames(currentProfile));
                             adapter.notifyDataSetChanged();
-                            Toast.makeText(this, "Shortcut Profile '" + getSpinnerValue + "' deleted.", Toast.LENGTH_SHORT).show();
+                            Snackbar.make(view, "Shortcut Profile '" + getSpinnerValue + "' deleted.", Snackbar.LENGTH_SHORT).show();
                         })
                         .setNegativeButton(android.R.string.no, null)
                         .setIcon(android.R.drawable.ic_dialog_alert)
                         .show();
             } else {
                 view.post(() -> {
-                    Toast.makeText(this, "Shortcut Profile not found", Toast.LENGTH_SHORT).show();
+                    Snackbar.make(view, "Shortcut Profile not found", Snackbar.LENGTH_SHORT).show();
                 });
             }
         });
@@ -129,6 +144,7 @@ public class ShortcutActivity extends AppCompatActivity {
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 if (parent.getItemAtPosition(position) != null) {
                     String selectedProfile = parent.getItemAtPosition(position).toString();
+                    prefManager.getDataPref(PrefManager.DataPref.PROFILE_CONFIG).edit().putString(PrefManager.KeyPref.CURRENT_SHORTPROFILE.getKey(), selectedProfile).apply();
                     Log.d("Value of Spinner", selectedProfile);
                     loadShortcutsForProfile(selectedProfile);
                 }
@@ -136,7 +152,6 @@ public class ShortcutActivity extends AppCompatActivity {
 
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
-                // Clear the shortcut views if no profile is selected
                 LinearLayout sequenceLayout = popupCreateShortcutsBinding.seqeuenceLinearlayout;
                 int childCount = sequenceLayout.getChildCount();
                 if (childCount > 2) {
@@ -147,33 +162,28 @@ public class ShortcutActivity extends AppCompatActivity {
 
         popupCreateShortcutsBinding.saveShortcutProfileButton.setOnClickListener((view) -> {
             if (popupCreateShortcutsBinding.shortcutProfileSpinner.getSelectedItem() == null) {
-                Toast.makeText(this, "Please select a profile to save to.", Toast.LENGTH_SHORT).show();
+                Snackbar.make(view, "Please select a profile to save to.", Snackbar.LENGTH_SHORT).show();
                 return;
             }
 
             String selectedProfile = popupCreateShortcutsBinding.shortcutProfileSpinner.getSelectedItem().toString();
-
+            String currentProfile = getCurrentProfileName();
 
             if (!profileManager.shortcutProfileExists(currentProfile, selectedProfile)) {
-                // This case should ideally not happen if the spinner is populated correctly
-                Toast.makeText(this, "Profile '" + selectedProfile + "' not found.", Toast.LENGTH_SHORT).show();
+                Snackbar.make(view, "Profile '" + selectedProfile + "' not found.", Snackbar.LENGTH_SHORT).show();
                 return;
             }
 
-            // To ensure a clean save, we delete and re-create the profile.
-            // This handles renamed or deleted commands properly.
-            profileManager.deleteShortcutProfile(currentProfile, selectedProfile);
-            profileManager.createShortcutProfile(currentProfile, selectedProfile);
-
             LinearLayout sequenceLayout = popupCreateShortcutsBinding.seqeuenceLinearlayout;
-            // Start from 2 to skip the static header and button layout
+            JSONObject newShortcutData = new JSONObject();
+
             for (int i = 2; i < sequenceLayout.getChildCount(); i++) {
                 View keySequenceView = sequenceLayout.getChildAt(i);
                 TextInputEditText commandNameEditText = keySequenceView.findViewById(R.id.keySequence_MainLinearLayout).findViewById(R.id.shortcutProfileName);
                 String commandName = commandNameEditText.getText().toString().trim();
 
                 if (commandName.isEmpty()) {
-                    continue; // Skip sections without a command name
+                    commandName = "Command"; // Use default name if empty
                 }
 
                 LinearLayout spinnerLayout = keySequenceView.findViewById(R.id.spinnerLinearLayout);
@@ -184,74 +194,72 @@ public class ShortcutActivity extends AppCompatActivity {
                         Spinner spinner = (Spinner) child;
                         if (spinner.getSelectedItem() != null) {
                             String key = spinner.getSelectedItem().toString();
-                            if (commandSequence.length() > 0) {
-                                commandSequence.append(";");
+                            if (!key.equalsIgnoreCase("none")) {
+                                if (commandSequence.length() > 0) {
+                                    commandSequence.append(";");
+                                }
+                                commandSequence.append(key);
                             }
-                            commandSequence.append(key);
                         }
                     }
                 }
 
                 if (commandSequence.length() > 0) {
-                    profileManager.addCommandToShortcut(currentProfile, selectedProfile, commandName, commandSequence.toString());
+                    String uniqueKey = commandName + "___" + UUID.randomUUID().toString();
+                    try {
+                        newShortcutData.put(uniqueKey, commandSequence.toString());
+                    } catch (JSONException e) {
+                        Log.e("ShortcutActivity", "Error creating shortcut JSON", e);
+                        Snackbar.make(view, "Error saving shortcut data.", Snackbar.LENGTH_SHORT).show();
+                        return;
+                    }
                 }
             }
 
-            Toast.makeText(this, "Shortcuts saved to profile '" + selectedProfile + "'.", Toast.LENGTH_SHORT).show();
+            profileManager.updateShortcutProfile(currentProfile, selectedProfile, newShortcutData);
+            Snackbar.make(view, "Shortcuts saved to profile '" + selectedProfile + "'.", Snackbar.LENGTH_SHORT).show();
         });
 
-
-        initAnimation();
-
-        popupCreateShortcutsBinding.addKeysequenceButton.setOnClickListener((v1)-> {createAndAddShortcutSection_View();});
-        popupCreateShortcutsBinding.aiSearchButton.setOnClickListener((v2)->{
+        popupCreateShortcutsBinding.addKeysequenceButton.setOnClickListener((v1) -> createAndAddShortcutSection_View());
+        popupCreateShortcutsBinding.aiSearchButton.setOnClickListener((v2) -> {
             String searchText = Objects.requireNonNull(popupCreateShortcutsBinding.aiSearchInput.getText()).toString();
             if (!searchText.isEmpty()) {
+                popupCreateShortcutsBinding.loadingAnimation.setVisibility(View.VISIBLE);
                 popupCreateShortcutsBinding.aiSearchInput.setText("");
-                new Thread(() -> {
-                    aiSearch(searchText);
-                    popupCreateShortcutsBinding.getRoot().post(() -> {
-                        animator.setDuration(500);
-                    });
-                }).start();
+                new Thread(() -> aiSearch(searchText)).start();
             }
         });
-
     }
 
-
-
     private void loadShortcutsForProfile(String profileName) {
-        // Clear existing dynamic shortcut views
         LinearLayout sequenceLayout = popupCreateShortcutsBinding.seqeuenceLinearlayout;
         int childCount = sequenceLayout.getChildCount();
         if (childCount > 2) {
             sequenceLayout.removeViews(2, childCount - 2);
         }
 
-        String currentProfile = prefManager.getDataPref(PrefManager.DataPref.PROFILE_CONFIG)
-                .getString(PrefManager.KeyPref.CURRENT_PROFILE.toString(),"");
-
-        // Load shortcuts for the selected profile
+        String currentProfile = getCurrentProfileName();
         JSONObject shortcuts = profileManager.getShortcutProfile(currentProfile, profileName);
         if (shortcuts == null) {
             return;
         }
 
-        // Create and populate views for each shortcut
         Iterator<String> keys = shortcuts.keys();
-        while(keys.hasNext()) {
-            String commandName = keys.next();
-            String commandSequence = shortcuts.optString(commandName);
+        while (keys.hasNext()) {
+            String uniqueKey = keys.next();
+            String commandName = uniqueKey.contains("___") ? uniqueKey.split("___")[0] : uniqueKey;
+            String commandSequence = shortcuts.optString(uniqueKey);
 
             if (commandName.isEmpty() || commandSequence.isEmpty()) {
                 continue;
             }
 
             View keySequenceView = createAndAddShortcutSection_View();
-
             TextInputEditText commandNameEditText = keySequenceView.findViewById(R.id.keySequence_MainLinearLayout).findViewById(R.id.shortcutProfileName);
             commandNameEditText.setText(commandName);
+
+            LinearLayout spinnerLayout = keySequenceView.findViewById(R.id.spinnerLinearLayout);
+            spinnerLayout.removeAllViews();
 
             String[] commands = commandSequence.split(";");
             for (String command : commands) {
@@ -266,106 +274,69 @@ public class ShortcutActivity extends AppCompatActivity {
         }
     }
 
-
-    private void initAnimation() {
-        View view = findViewById(R.id.aiLinearLayout);
-        LayerDrawable layerDrawable = (LayerDrawable) view.getBackground();
-        GradientDrawable borderGradient = (GradientDrawable) layerDrawable.getDrawable(0);
-        int colorA = 0xFFFF5555;
-        int colorB = 0xFF1100FF;
-        animator = ValueAnimator.ofFloat(0f, 1f);
-        animator.setDuration(2000);
-        animator.setRepeatCount(ValueAnimator.INFINITE);
-        animator.setRepeatMode(ValueAnimator.REVERSE);
-        animator.addUpdateListener(a -> {
-            float progress = (float) a.getAnimatedValue();
-            int start = blend(colorA, colorB, progress);
-            int end = blend(colorB, colorA, progress);
-            borderGradient.setColors(new int[]{start, end});
-        });
-        animator.start();
-    }
-
-    private int blend(int from, int to, float ratio) {
-        int r = (int) (Color.red(from) * (1 - ratio) + Color.red(to) * ratio);
-        int g = (int) (Color.green(from) * (1 - ratio) + Color.green(to) * ratio);
-        int b = (int) (Color.blue(from) * (1 - ratio) + Color.blue(to) * ratio);
-        int a = (int) (Color.alpha(from) * (1 - ratio) + Color.alpha(to) * ratio);
-        return Color.argb(a, r, g, b);
-    }
-
-    private void addShortcuts(JSONObject jsonObject){
+    private void addShortcuts(JSONObject jsonObject) {
         Iterator<String> keys = jsonObject.keys();
-        while(keys.hasNext()){
+        while (keys.hasNext()) {
             String key = keys.next();
             JSONObject children = jsonObject.optJSONObject(key);
             Iterator<String> childKeys = Objects.requireNonNull(children).keys();
             while (childKeys.hasNext()) {
-                String commandName = childKeys.next();
+                String commandName = childKeys.next().toLowerCase();
                 String[] commands = children.optString(commandName).split(";");
                 View tempSection = createAndAddShortcutSection_View();
 
                 for (String command : commands) {
-
-                    Spinner spinner = createSpinner(tempSection,new Spinner(this));
+                    Spinner spinner = createSpinner(tempSection, new Spinner(this));
                     spinner.setSelection(getValue(command));
-
                 }
-                TextInputEditText textInputEditText = tempSection
-                        .findViewById(R.id.keySequence_MainLinearLayout)
-                        .findViewById(R.id.shortcutProfileName);
+                TextInputEditText textInputEditText = tempSection.findViewById(R.id.keySequence_MainLinearLayout).findViewById(R.id.shortcutProfileName);
                 textInputEditText.setText(commandName);
                 popupCreateShortcutsBinding.shortcutProfileInput.setText(key);
             }
         }
     }
 
-
-
-    public View createAndAddShortcutSection_View(){
+    public View createAndAddShortcutSection_View() {
         View key_sequence = getLayoutInflater().inflate(R.layout.key_sequence, null);
         Button addSpinnerButton = key_sequence.findViewById(R.id.addSpinnerButton);
         Button deleteSpinnerButton = key_sequence.findViewById(R.id.deleteSpinnerButton);
-        //-- Buttons for adding and deleting spinners --//
-        addSpinnerButton.setOnClickListener((v2)->{
+        addSpinnerButton.setOnClickListener((v2) -> {
             Spinner spinner = new Spinner(this);
             spinner.setAdapter(spinnerAdapter);
-            createSpinner(key_sequence,spinner);
+            createSpinner(key_sequence, spinner);
         });
-        deleteSpinnerButton.setOnClickListener((v2)-> {
-
+        deleteSpinnerButton.setOnClickListener((v2) -> {
             LinearLayout view = key_sequence.findViewById(R.id.spinnerLinearLayout);
-            if(view.getChildCount()>0){
-                view.removeViewAt(view.getChildCount()-1);
+            if (view.getChildCount() > 0) {
+                view.removeViewAt(view.getChildCount() - 1);
             }
-
         });
-        key_sequence.findViewById(R.id.deleteButton).setOnClickListener((view)->{
+        key_sequence.findViewById(R.id.deleteButton).setOnClickListener((view) -> {
             popupCreateShortcutsBinding.seqeuenceLinearlayout.removeView(key_sequence);
         });
-
 
         popupCreateShortcutsBinding.seqeuenceLinearlayout.addView(key_sequence);
         return key_sequence;
     }
 
-    public Spinner createSpinner(View tempKeySequence,Spinner s){
+    public Spinner createSpinner(View tempKeySequence, Spinner s) {
         s.setAdapter(spinnerAdapter);
         LinearLayout spinnerLinearLayout = tempKeySequence.findViewById(R.id.spinnerLinearLayout);
         spinnerLinearLayout.addView(s);
         return s;
     }
 
-    void aiSearch(String text){
+    void aiSearch(String text) {
         if (!text.isEmpty()) {
             String jsonBody = null;
             try {
-                jsonBody = buildJsonPayload(text,"deepseek/deepseek-chat-v3.1:free");
+                jsonBody = buildJsonPayload(text, "deepseek/deepseek-chat-v3.1:free");
             } catch (JSONException e) {
-                Log.d(ShortcutActivity.class.getName(),"Error creating JSON payload.");
+                Log.d(ShortcutActivity.class.getName(), "Error creating JSON payload.");
             }
-            if(jsonBody==null) {
-                Log.d(ShortcutActivity.class.getName(),"JsonBody is null.");
+            if (jsonBody == null) {
+                Log.d(ShortcutActivity.class.getName(), "JsonBody is null.");
+                popupCreateShortcutsBinding.getRoot().post(() -> popupCreateShortcutsBinding.loadingAnimation.setVisibility(View.GONE));
                 return;
             }
             OkHttpClient client = new OkHttpClient();
@@ -379,8 +350,9 @@ public class ShortcutActivity extends AppCompatActivity {
                 @Override
                 public void onFailure(@NonNull Call call, @NonNull IOException e) {
                     Log.e(ShortcutActivity.class.getName(), "Error at Request: " + e.getMessage());
+                    popupCreateShortcutsBinding.getRoot().post(() -> popupCreateShortcutsBinding.loadingAnimation.setVisibility(View.GONE));
                 }
-                @RequiresApi(api = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+
                 @Override
                 public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
                     final String responseBody = response.body().string();
@@ -408,7 +380,13 @@ public class ShortcutActivity extends AppCompatActivity {
                         }
                     } else {
                         Log.e(ShortcutActivity.class.getName(), "Request failed: " + response.code() + " " + responseBody);
+
+                        runOnUiThread(() -> {
+                            Snackbar.make(popupCreateShortcutsBinding.getRoot(), "Request failed: " + response.code() + " " + responseBody, Snackbar.LENGTH_SHORT).show();
+                        });
+
                     }
+                    popupCreateShortcutsBinding.getRoot().post(() -> popupCreateShortcutsBinding.loadingAnimation.setVisibility(View.GONE));
                 }
             });
         }

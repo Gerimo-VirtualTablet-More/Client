@@ -9,11 +9,14 @@ import java.util.List;
 
 public class HelperMethods {
 
-    public enum ACTION {
+    public enum SET_ACTION {
         HOVER,
         CLICK,
         PINCH,
         HOTKEY
+    }
+    public enum GET_ACTION {
+        RESOLUTION
     }
 
     public static void setUI(AppCompatActivity appCompatActivity) {
@@ -27,19 +30,22 @@ public class HelperMethods {
         );
     }
 
-    public static String sendData(ACTION action, int x, int y, float pressure) {
+    public static String sendData(SET_ACTION action, int x, int y, float pressure) {
         return getActionString(action) + ";" + x + ";" + y + ";" + pressure;
     }
 
-    public static String sendData(ACTION action, float mScaleFactor) {
-        return getActionString(action) + ";" + mScaleFactor;
+    public static String sendData(SET_ACTION action, int x, int y, float pressure,int tiltX,int tiltY) {
+        return getActionString(action) + ";" + x + ";" + y + ";" + pressure + ";" + tiltX + ";" + tiltY;
     }
 
-    public static String sendData(ACTION action, int pointerX1, int pointerX2, int pointerY1, int pointerY2) {
+    public static String sendData(SET_ACTION action, int pointerX1, int pointerX2, int pointerY1, int pointerY2) {
         return getActionString(action) + ";" + pointerX1 + ";" + pointerX2 + ";" + pointerY1 + ";" + pointerY2;
     }
+    public static String sendEnquiry(GET_ACTION action){
+        return getActionString(action);
+    }
 
-    public static String sendData(ACTION action, KeyHelper.KeyCode[] msg) {
+    public static String sendData(SET_ACTION action, KeyHelper.KeyCode[] msg) {
         StringBuilder mBuilder = new StringBuilder();
         for (int i = 0; i < msg.length; i++) {
             mBuilder.append(";");
@@ -48,7 +54,10 @@ public class HelperMethods {
         return getActionString(action) + mBuilder.toString();
     }
 
-    private static String getActionString(ACTION action) {
+    private static String getActionString(SET_ACTION action) {
+        return action.toString();
+    }
+    private static String getActionString(GET_ACTION action) {
         return action.toString();
     }
 

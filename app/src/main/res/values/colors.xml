@@ -6,6 +6,10 @@
     <color name="red">#FF0000</color>
     <color name="dialogColor">#FFFFFF</color>
 
+    <!-- Status Colors -->
+    <color name="status_online_green">#4CAF50</color>
+    <color name="status_offline_red">#F44336</color>
+
     <!-- Light Theme -->
     <color name="light_primary">@color/black</color>
     <color name="light_onPrimary">@color/white</color>
@@ -57,4 +61,5 @@
     <color name="dark_outline">@color/white</color>
 
     <color name="cursor_color">@color/black</color>
+    <color name="grey_background">#E0E0E0</color>
 </resources>

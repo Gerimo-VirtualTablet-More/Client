@@ -7,7 +7,6 @@ import android.os.Bundle;
 import android.util.Log;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
-import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
@@ -20,6 +19,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.antozstudios.drawnow.Manager.PrefManager;
 import com.antozstudios.drawnow.Manager.ProfileManager;
 import com.antozstudios.drawnow.databinding.ProfileSettingsLayoutBinding;
+import com.google.android.material.snackbar.Snackbar;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -64,27 +64,27 @@ public class CreateProfileActivity extends AppCompatActivity {
             prefManager.putDataPref(PrefManager.DataPref.PROFILE_CONFIG)
                     .putString(PrefManager.KeyPref.CURRENT_PROFILE.getKey(), "")
                     .putInt(PrefManager.KeyPref.CURRENT_INDEX_PROFILE.getKey(), -1)
-                    .apply();
+                    .commit();
         }
 
         profileSpinner.setOnItemClickListener((parent, view, position, id) -> {
             if (position < 0 || position >= profileAdapter.getCount()) return;
-            String profileName = profileAdapter.getItem(position);
+            String profileName = profileAdapter.getItem(position).toLowerCase();
             prefManager.putDataPref(PrefManager.DataPref.PROFILE_CONFIG)
                     .putInt(PrefManager.KeyPref.CURRENT_INDEX_PROFILE.getKey(), position)
                     .putString(PrefManager.KeyPref.CURRENT_PROFILE.getKey(), profileName)
-                    .apply();
+                    .commit();
             Log.d("CreateProfileActivity", "Profile selected: " + profileName);
         });
 
         binding.createButton.setOnClickListener(v -> {
             String profileName = Objects.toString(binding.textInputEditText.getText(), "").trim();
             if (profileName.isEmpty()) {
-                Toast.makeText(this, "Please enter a profile name.", Toast.LENGTH_SHORT).show();
+                Snackbar.make(binding.getRoot(), "Please enter a profile name.", Snackbar.LENGTH_SHORT).show();
                 return;
             }
             if (profileManager.profileExists(profileName)) {
-                Toast.makeText(this, "Profile already exists.", Toast.LENGTH_SHORT).show();
+                Snackbar.make(binding.getRoot(), "Profile already exists.", Snackbar.LENGTH_SHORT).show();
                 return;
             }
             profileManager.createProfile(profileName);
@@ -97,20 +97,20 @@ public class CreateProfileActivity extends AppCompatActivity {
             prefManager.putDataPref(PrefManager.DataPref.PROFILE_CONFIG)
                     .putInt(PrefManager.KeyPref.CURRENT_INDEX_PROFILE.getKey(), idx)
                     .putString(PrefManager.KeyPref.CURRENT_PROFILE.getKey(), profileName)
-                    .apply();
+                    .commit();
 
-            Toast.makeText(this, "Profile '" + profileName + "' created.", Toast.LENGTH_SHORT).show();
+            Snackbar.make(binding.getRoot(), "Profile '" + profileName + "' created.", Snackbar.LENGTH_SHORT).show();
         });
 
         binding.deleteButton.setOnClickListener(v -> {
             String profileToDelete = binding.profileSpinner.getText().toString();
             if (profileToDelete.isEmpty()) {
-                Toast.makeText(this, "No profile selected to delete.", Toast.LENGTH_SHORT).show();
+                Snackbar.make(binding.getRoot(), "No profile selected to delete.", Snackbar.LENGTH_SHORT).show();
                 return;
             }
 
             if (!profileManager.profileExists(profileToDelete)) {
-                Toast.makeText(this, "Profile does not exist.", Toast.LENGTH_SHORT).show();
+                Snackbar.make(binding.getRoot(), "Profile does not exist.", Snackbar.LENGTH_SHORT).show();
                 return;
             }
 
@@ -126,17 +126,18 @@ public class CreateProfileActivity extends AppCompatActivity {
                         prefManager.putDataPref(PrefManager.DataPref.PROFILE_CONFIG)
                                 .putString(PrefManager.KeyPref.CURRENT_PROFILE.getKey(), "")
                                 .putInt(PrefManager.KeyPref.CURRENT_INDEX_PROFILE.getKey(), -1)
-                                .apply();
+                                .commit();
 
-                        Toast.makeText(this, "Profile '" + profileToDelete + "' deleted.", Toast.LENGTH_SHORT).show();
+                        Snackbar.make(binding.getRoot(), "Profile '" + profileToDelete + "' deleted.", Snackbar.LENGTH_SHORT).show();
                     })
                     .setNegativeButton("Cancel", null)
                     .show();
+
         });
 
         binding.exportButton.setOnClickListener(v -> {
             if (profileAdapter.getCount() == 0) {
-                Toast.makeText(this, "No profiles to export.", Toast.LENGTH_SHORT).show();
+                Snackbar.make(binding.getRoot(), "No profiles to export.", Snackbar.LENGTH_SHORT).show();
                 return;
             }
             Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
@@ -168,12 +169,12 @@ public class CreateProfileActivity extends AppCompatActivity {
                             try (OutputStream outputStream = getContentResolver().openOutputStream(uri)) {
                                 if (outputStream != null) {
                                     outputStream.write(jsonToExport.getBytes());
-                                    Toast.makeText(this, "Export successful!", Toast.LENGTH_SHORT).show();
+                                    Snackbar.make(binding.getRoot(), "Export successful!", Snackbar.LENGTH_SHORT).show();
                                 } else {
                                     throw new IOException("OutputStream is null");
                                 }
                             } catch (IOException e) {
-                                Toast.makeText(this, "Export failed: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                                Snackbar.make(binding.getRoot(), "Export failed: " + e.getMessage(), Snackbar.LENGTH_SHORT).show();
                                 Log.e("ExportProfile", "File write failed", e);
                             }
                         }
@@ -189,7 +190,7 @@ public class CreateProfileActivity extends AppCompatActivity {
                             try {
                                 String jsonContent = readTextFromUri(uri);
                                 if (profileManager.importProfiles(jsonContent)) {
-                                    Toast.makeText(this, "Import successful!", Toast.LENGTH_SHORT).show();
+                                    Snackbar.make(binding.getRoot(), "Import successful!", Snackbar.LENGTH_SHORT).show();
 
                                     ArrayAdapter<String> adapter = (ArrayAdapter<String>) binding.profileSpinner.getAdapter();
                                     adapter.clear();
@@ -200,12 +201,12 @@ public class CreateProfileActivity extends AppCompatActivity {
                                     prefManager.putDataPref(PrefManager.DataPref.PROFILE_CONFIG)
                                             .putString(PrefManager.KeyPref.CURRENT_PROFILE.getKey(), "")
                                             .putInt(PrefManager.KeyPref.CURRENT_INDEX_PROFILE.getKey(), -1)
-                                            .apply();
+                                            .commit();
                                 } else {
-                                    Toast.makeText(this, "Import failed. Invalid file format.", Toast.LENGTH_SHORT).show();
+                                    Snackbar.make(binding.getRoot(), "Import failed. Invalid file format.", Snackbar.LENGTH_SHORT).show();
                                 }
                             } catch (IOException e) {
-                                Toast.makeText(this, "Import failed: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                                Snackbar.make(binding.getRoot(), "Import failed: " + e.getMessage(), Snackbar.LENGTH_SHORT).show();
                                 Log.e("ImportProfile", "File read failed", e);
                             }
                         }
