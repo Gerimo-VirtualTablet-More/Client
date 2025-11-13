@@ -167,6 +167,7 @@
                         android:layout_marginBottom="8dp">
 
                         <com.google.android.material.textfield.TextInputLayout
+                            android:id="@+id/aiSearchInputLayout"
                             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content">
@@ -176,7 +177,10 @@
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:inputType="text" />
+
+
                         </com.google.android.material.textfield.TextInputLayout>
+
 
                         <com.airbnb.lottie.LottieAnimationView
                             android:id="@+id/loading_animation"
@@ -191,6 +195,7 @@
                             tools:visibility="visible" />
 
                     </FrameLayout>
+
 
                     <Button
                         android:id="@+id/aiSearchButton"
@@ -220,34 +225,30 @@
                 android:text="@string/ai_can_make_mistakes_so_double_check_it"
                 android:textAppearance="?attr/textAppearanceCaption"/>
 
-
-            <com.google.android.material.button.MaterialButtonToggleGroup
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp">
+                android:layout_marginTop="16dp"
+                android:gravity="center"
+                android:orientation="horizontal">
 
-
-            <com.google.android.material.button.MaterialButton
+                <com.google.android.material.button.MaterialButton
                     android:id="@+id/import_button"
                     style="?attr/materialButtonOutlinedStyle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                    android:text="@string/import_title"
-
-                    />
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/import_title" />
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/export_button"
+                    style="?attr/materialButtonOutlinedStyle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/export_title"
+                    android:layout_marginStart="8dp"
+                    android:text="@string/export_title" />
 
-                    />
-
-            </com.google.android.material.button.MaterialButtonToggleGroup>
+            </LinearLayout>
         </LinearLayout>
-
-
 
     </ScrollView>
 

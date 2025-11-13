@@ -5,9 +5,11 @@ import static com.antozstudios.drawnow.Helper.KeyHelper.KeyCode.getAllKeys;
 import static com.antozstudios.drawnow.Helper.KeyHelper.KeyCode.getValue;
 
 import android.content.Intent;
+import android.content.res.Resources;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
@@ -45,6 +47,8 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
@@ -70,6 +74,10 @@ public class CreateShortcutActivity extends AppCompatActivity {
     private ActivityResultLauncher<Intent> importLauncher;
     private String mJsonToExport;
 
+    private Handler hintHandler = new Handler();
+    private List<String> hintList;
+    private int hintIndex = 0;
+
     private String getCurrentProfileName() {
         return prefManager.getDataPref(PrefManager.DataPref.PROFILE_CONFIG)
                 .getString(PrefManager.KeyPref.CURRENT_PROFILE.toString(), "");
@@ -88,6 +96,8 @@ public class CreateShortcutActivity extends AppCompatActivity {
         profileManager = ProfileManager.getInstance((AppCompatActivity) this);
 
         registerActivityResults();
+
+        setupHintSwitcher();
 
         activityShortcutBinding.keySequenceCard.setVisibility(View.GONE);
         activityShortcutBinding.aiModeCard.setVisibility(View.GONE);
@@ -201,6 +211,34 @@ public class CreateShortcutActivity extends AppCompatActivity {
                 new Thread(() -> aiSearch(searchText)).start();
             }
         });
+    }
+
+    private void setupHintSwitcher() {
+        try {
+            Resources res = getResources();
+            hintList = new ArrayList<>(Arrays.asList(res.getStringArray(R.array.ai_search_hints)));
+            Collections.shuffle(hintList);
+            hintHandler.post(hintRunnable);
+        } catch (Resources.NotFoundException e) {
+            Log.e("CreateShortcutActivity", "Hint array not found", e);
+        }
+    }
+
+    private final Runnable hintRunnable = new Runnable() {
+        @Override
+        public void run() {
+            if (hintList != null && !hintList.isEmpty()) {
+                activityShortcutBinding.aiSearchInputLayout.setHint(hintList.get(hintIndex));
+                hintIndex = (hintIndex + 1) % hintList.size();
+                hintHandler.postDelayed(this, 3000); // Switch every 3 seconds
+            }
+        }
+    };
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        hintHandler.removeCallbacks(hintRunnable); // Prevent memory leaks
     }
 
     private void showManageProfileMenu(View view) {

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="ai_search_hints">
+        <item>Shortcut for saving in Photoshop</item>
+        <item>Close all tabs in Chrome</item>
+        <item>New folder in Windows Explorer</item>
+        <item>Undo in Word</item>
+        <item>Copy &amp; paste in Notepad</item>
+        <item>Switch windows in Windows 11</item>
+        <item>Refresh page in Edge</item>
+        <item>Zoom in PowerPoint</item>
+        <item>Screenshot to Paint</item>
+        <item>Rename file in Windows Explorer</item>
+        <item>Start slideshow in PowerPoint</item>
+        <item>Print in Excel</item>
+        <item>Lock computer in Windows 11</item>
+        <item>Close window in Notepad</item>
+        <item>Select all in Word</item>
+        <item>Open Task Manager in Windows 11</item>
+        <item>Open/close tab in Chrome</item>
+        <item>File properties in Windows Explorer</item>
+        <item>Minimize all windows in Windows 11</item>
+        <item>New document in Word</item>
+        <item>Paste without formatting in Google Docs</item>
+        <item>Open search in Windows 11</item>
+        <item>Export as PDF in Excel</item>
+        <item>Bold text in PowerPoint</item>
+        <item>Switch desktops in Windows 11</item>
+        <item>Open command prompt in Windows 11</item>
+        <item>Hide ribbon in Word</item>
+        <item>Copy &amp; delete file in Windows Explorer</item>
+        <item>Select address bar in Chrome</item>
+        <item>Spell check in Word</item>
+    </string-array>
+</resources>
