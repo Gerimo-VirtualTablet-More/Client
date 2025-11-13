@@ -54,6 +54,8 @@
     <string name="create_delete_or_select_a_profile">Create, delete, or select a profile.</string>
     <string name="manage_profiles_button">Manage Profiles</string>
     <string name="key_sequences">Key Sequences</string>
+    <string name="manual_connect">Manual Connect</string>
+    <string name="create_or_select_a_profile_first">Create or select a profile first</string>
 
 
 </resources>

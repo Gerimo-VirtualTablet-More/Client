@@ -2,7 +2,6 @@ package com.antozstudios.drawnow.Activities;
 import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
 
-import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -13,20 +12,26 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.ext.SdkExtensions;
+import android.text.InputType;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 
 import androidx.annotation.RequiresExtension;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
+
+import com.antozstudios.drawnow.R;
 import com.antozstudios.drawnow.Helper.Records.HostData;
 import com.antozstudios.drawnow.Manager.PrefManager;
 import com.antozstudios.drawnow.Manager.ProfileManager;
 import com.antozstudios.drawnow.Manager.ServerHistoryManager;
 import com.antozstudios.drawnow.databinding.ActivityMenuBinding;
 import com.google.android.material.button.MaterialButton;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.snackbar.Snackbar;
 
 import java.util.Map;
@@ -66,8 +71,55 @@ public class MenuActivity extends AppCompatActivity {
         }
         syncLoadingAnimation();
 
-
+        binding.manualConnectButton.setOnClickListener(v -> showManualConnectDialog());
+        binding.offlineButton.setOnClickListener(v -> {
+            Intent intent = new Intent(MenuActivity.this, DrawActivity.class);
+            startActivity(intent);
+        });
     }
+
+    private void showManualConnectDialog() {
+        MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this);
+        builder.setTitle(R.string.manual_connect);
+
+        View view = LayoutInflater.from(this).inflate(R.layout.dialog_manual_connect, null);
+        final EditText ipAddressInput = view.findViewById(R.id.ip_address_input);
+        final EditText portInput = view.findViewById(R.id.port_input);
+
+        builder.setView(view);
+
+        builder.setPositiveButton(R.string.connect, (dialog, which) -> {
+            String ipAddress = ipAddressInput.getText().toString();
+            String portStr = portInput.getText().toString();
+            if (!ipAddress.isEmpty() && !portStr.isEmpty()) {
+                int port = Integer.parseInt(portStr);
+                connectToDrawActivity(ipAddress, port);
+            }
+        });
+        builder.setNegativeButton(R.string.cancel, (dialog, which) -> dialog.cancel());
+
+        builder.show();
+    }
+
+    private void connectToDrawActivity(String ip, int port) {
+        if (profileManager.getAllProfileNames().isEmpty() ||
+                prefManager.getDataPref(PrefManager.DataPref.PROFILE_CONFIG)
+                        .getInt(PrefManager.KeyPref.CURRENT_INDEX_PROFILE.getKey(), -1) < 0) {
+            Snackbar.make(binding.getRoot(), R.string.create_or_select_a_profile_first, Snackbar.LENGTH_SHORT).show();
+            return;
+        }
+
+        Intent intent = new Intent(MenuActivity.this, DrawActivity.class);
+        intent.putExtra("com.antozstudios.drawnow.SERVER_IP", ip);
+        intent.putExtra("com.antozstudios.drawnow.SERVER_PORT", port);
+
+        prefManager.putDataPref(PrefManager.DataPref.SHOW_HOSTS)
+                .putString(PrefManager.KeyPref.LAST_IP.getKey(), ip)
+                .putInt(PrefManager.KeyPref.LAST_PORT.getKey(), port).commit();
+
+        startActivity(intent);
+    }
+
 
     private void initTheme() {
         int theme = prefManager.getDataPref(PrefManager.DataPref.SETTINGS_CONFIG)
@@ -119,27 +171,7 @@ public class MenuActivity extends AppCompatActivity {
         ));
 
         button.setOnClickListener(v -> {
-            if(profileManager.getAllProfileNames().isEmpty() ||
-                    prefManager.getDataPref(PrefManager.DataPref.PROFILE_CONFIG)
-                            .getInt(PrefManager.KeyPref.CURRENT_INDEX_PROFILE.getKey(), -1) < 0) {
-                Snackbar.make(binding.getRoot(), "Create or select a profile first", Snackbar.LENGTH_SHORT).show();
-                return;
-            }
-
-
-            Intent intent = new Intent(MenuActivity.this, DrawActivity.class);
-            String saveHostIP = serviceInfo.getHost().getHostAddress();
-
-            int savePort = serviceInfo.getPort();
-
-            intent.putExtra("com.antozstudios.drawnow.SERVER_IP", saveHostIP);
-            intent.putExtra("com.antozstudios.drawnow.SERVER_PORT", savePort);
-
-            prefManager.putDataPref(PrefManager.DataPref.SHOW_HOSTS)
-                    .putString(PrefManager.KeyPref.LAST_IP.getKey(), saveHostIP)
-                    .putInt(PrefManager.KeyPref.LAST_PORT.getKey(), savePort).commit();
-
-            startActivity(intent);
+            connectToDrawActivity(serviceInfo.getHost().getHostAddress(), serviceInfo.getPort());
         });
         linearLayout.addView(button);
 
