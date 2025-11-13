@@ -6,6 +6,7 @@ import static com.antozstudios.drawnow.Helper.KeyHelper.KeyCode.getValue;
 
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -23,6 +24,7 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -73,6 +75,7 @@ public class CreateShortcutActivity extends AppCompatActivity {
                 .getString(PrefManager.KeyPref.CURRENT_PROFILE.toString(), "");
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.VANILLA_ICE_CREAM)
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -583,12 +586,16 @@ public class CreateShortcutActivity extends AppCompatActivity {
                 @Override
                 public void onFailure(@NonNull Call call, @NonNull IOException e) {
                     Log.e(CreateShortcutActivity.class.getName(), "Error at Request: " + e.getMessage());
-                    activityShortcutBinding.getRoot().post(() -> activityShortcutBinding.loadingAnimation.setVisibility(View.GONE));
+                    runOnUiThread(() -> {
+                        activityShortcutBinding.loadingAnimation.setVisibility(View.GONE);
+                        Snackbar.make(activityShortcutBinding.getRoot(), "Request failed: " + e.getMessage(), Snackbar.LENGTH_LONG).show();
+                    });
                 }
 
                 @Override
                 public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
                     final String responseBody = response.body().string();
+                    runOnUiThread(() -> activityShortcutBinding.loadingAnimation.setVisibility(View.GONE));
                     if (response.isSuccessful()) {
                         if (!responseBody.isEmpty() && !responseBody.equals("{}")) {
                             try {
@@ -602,24 +609,24 @@ public class CreateShortcutActivity extends AppCompatActivity {
                                     if (startIndex != -1 && endIndex != -1 && endIndex > startIndex) {
                                         reasoningString = reasoningString.substring(startIndex, endIndex + 1);
                                         final JSONObject reasoning = new JSONObject(reasoningString);
-                                        activityShortcutBinding.getRoot().post(() -> {
-                                            addShortcuts(reasoning);
-                                        });
+                                        runOnUiThread(() -> addShortcuts(reasoning));
                                     }
                                 }
                             } catch (JSONException e) {
                                 Log.e(CreateShortcutActivity.class.getName(), "Error parsing JSON: " + e.getMessage());
+                                runOnUiThread(() -> Snackbar.make(activityShortcutBinding.getRoot(), "Error processing AI response.", Snackbar.LENGTH_LONG).show());
                             }
                         }
                     } else {
                         Log.e(CreateShortcutActivity.class.getName(), "Request failed: " + response.code() + " " + responseBody);
-
-                        runOnUiThread(() -> {
-                            Snackbar.make(activityShortcutBinding.getRoot(), "Request failed: " + response.code() + " " + responseBody, Snackbar.LENGTH_SHORT).show();
-                        });
-
+                        String errorMessage;
+                        if (response.code() == 429) {
+                            errorMessage = "Rate limit reached. Please try again later.";
+                        } else {
+                            errorMessage = "Request failed: " + response.code();
+                        }
+                        runOnUiThread(() -> Snackbar.make(activityShortcutBinding.getRoot(), errorMessage, Snackbar.LENGTH_LONG).show());
                     }
-                    activityShortcutBinding.getRoot().post(() -> activityShortcutBinding.loadingAnimation.setVisibility(View.GONE));
                 }
             });
         }
