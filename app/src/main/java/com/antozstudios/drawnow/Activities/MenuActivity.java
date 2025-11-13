@@ -66,7 +66,7 @@ public class MenuActivity extends AppCompatActivity {
         }
         syncLoadingAnimation();
 
-        
+
     }
 
     private void initTheme() {

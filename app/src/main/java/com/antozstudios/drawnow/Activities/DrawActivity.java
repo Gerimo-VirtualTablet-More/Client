@@ -16,12 +16,10 @@ import android.view.View;
 import android.view.ViewPropertyAnimator;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.constraintlayout.widget.ConstraintSet;
 
 import com.antozstudios.drawnow.Helper.HelperClass;
@@ -115,7 +113,7 @@ public class DrawActivity extends AppCompatActivity {
         });
 
         binding.openShortcutButton.setOnClickListener(v -> {
-            startActivity(new Intent(this, ShortcutActivity.class));
+            startActivity(new Intent(this, CreateShortcutActivity.class));
         });
         binding.settingsButton.setOnClickListener(v -> {
             startActivity(new Intent(this, SettingsActivity.class));

@@ -387,6 +387,69 @@ public class ProfileManager {
         return false;
     }
 
+    public String exportShortcutProfiles(String mainProfile, List<String> shortcutProfileNames) {
+        try {
+            JSONObject profiles = jsonObject.getJSONObject("profiles");
+            if (profiles.has(mainProfile)) {
+                JSONObject profile = profiles.getJSONObject(mainProfile);
+                if (profile.has("shortCutProfiles")) {
+                    JSONObject allShortcutProfiles = profile.getJSONObject("shortCutProfiles");
+                    JSONObject selectedShortcutProfiles = new JSONObject();
+                    for (String name : shortcutProfileNames) {
+                        if (allShortcutProfiles.has(name)) {
+                            selectedShortcutProfiles.put(name, allShortcutProfiles.getJSONObject(name));
+                        }
+                    }
+                    return selectedShortcutProfiles.toString(4);
+                }
+            }
+        } catch (JSONException e) {
+            Log.e("ProfileManager", "Error exporting shortcut profiles to string", e);
+        }
+        return null;
+    }
+
+    public boolean importShortcutProfiles(String mainProfile, String jsonContent, List<String> shortcutProfileNamesToImport) {
+        if (jsonContent == null || jsonContent.isEmpty()) {
+            return false;
+        }
+        try {
+            JSONObject importedJson = new JSONObject(jsonContent);
+            JSONObject profiles = jsonObject.getJSONObject("profiles");
+            if (!profiles.has(mainProfile)) {
+                createProfile(mainProfile);
+            }
+            JSONObject profile = profiles.getJSONObject(mainProfile);
+            JSONObject shortcutProfiles = profile.getJSONObject("shortCutProfiles");
+
+            for (String name : shortcutProfileNamesToImport) {
+                if (importedJson.has(name)) {
+                    shortcutProfiles.put(name, importedJson.getJSONObject(name));
+                }
+            }
+            saveJson();
+            return true;
+        } catch (JSONException e) {
+            Log.e("ProfileManager", "Error parsing imported JSON content", e);
+            return false;
+        }
+    }
+
+    public List<String> getShortcutProfileNamesFromContent(String jsonContent) {
+        List<String> names = new ArrayList<>();
+        try {
+            JSONObject importedJson = new JSONObject(jsonContent);
+            Iterator<String> keys = importedJson.keys();
+            while (keys.hasNext()) {
+                names.add(keys.next());
+            }
+        } catch (JSONException e) {
+            Log.e("ProfileManager", "Could not retrieve shortcut profile names from content", e);
+        }
+        return names;
+    }
+
+
     public JSONObject getRawJsonObject() {
         return jsonObject;
     }

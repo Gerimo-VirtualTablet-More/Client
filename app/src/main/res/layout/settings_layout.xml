@@ -47,7 +47,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:paddingBottom="16dp"
-                        android:text="Create an account on OpenRouter, get your API key, and paste it here."
+                        android:text="@string/create_an_account_on_openrouter_get_your_api_key_and_paste_it_here"
                         android:textAppearance="?attr/textAppearanceBody2" />
 
                     <com.google.android.material.textfield.TextInputLayout
@@ -92,7 +92,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:paddingBottom="16dp"
-                        android:text="Toolbar Position"
+                        android:text="@string/toolbar_position"
                         android:textAppearance="?attr/textAppearanceHeadline6" />
 
                     <com.google.android.material.button.MaterialButtonToggleGroup
@@ -107,14 +107,14 @@
                             android:id="@+id/toolbar_position_left"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="LEFT" />
+                            android:text="@string/left" />
 
                         <Button
                             android:id="@+id/toolbar_position_right"
                             style="?attr/materialButtonOutlinedStyle"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="RIGHT" />
+                            android:text="@string/right" />
                     </com.google.android.material.button.MaterialButtonToggleGroup>
 
                 </LinearLayout>
@@ -137,7 +137,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:paddingBottom="16dp"
-                        android:text="Work Areas"
+                        android:text="@string/work_areas"
                         android:textAppearance="?attr/textAppearanceHeadline6" />
 
                     <com.google.android.material.button.MaterialButtonToggleGroup
@@ -154,7 +154,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="16dp"
-                        android:text="Uses the monitor’s Work Area (usable space excluding the taskbar), not raw resolution, to keep tools and touch inputs visible across all monitors." />
+                        android:text="@string/uses_the_monitor_s_work_area_usable_space_excluding_the_taskbar_not_raw_resolution_to_keep_tools_and_touch_inputs_visible_across_all_monitors" />
 
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
@@ -175,7 +175,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:paddingBottom="16dp"
-                        android:text="Theme"
+                        android:text="@string/theme"
                         android:textAppearance="?attr/textAppearanceHeadline6" />
 
                     <com.google.android.material.button.MaterialButtonToggleGroup
@@ -190,21 +190,21 @@
                             android:id="@+id/theme_system"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="System" />
+                            android:text="@string/system" />
 
                         <Button
                             android:id="@+id/theme_light"
                             style="?attr/materialButtonOutlinedStyle"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Light" />
+                            android:text="@string/light" />
 
                         <Button
                             android:id="@+id/theme_dark"
                             style="?attr/materialButtonOutlinedStyle"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Dark" />
+                            android:text="@string/dark" />
                     </com.google.android.material.button.MaterialButtonToggleGroup>
 
                 </LinearLayout>
