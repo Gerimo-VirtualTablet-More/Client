@@ -67,6 +67,10 @@ public class DrawActivity extends AppCompatActivity {
     private int clientWidth;
     private int clientHeight;
 
+    int mouseToolbarVisibilty;
+    int rightToolBarVisibilty;
+    int shortcutProfileSpinnerVisibility;
+
     private boolean isOfflineMode = false;
 
     @RequiresApi(api = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
@@ -75,6 +79,11 @@ public class DrawActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         binding = ActivityDrawBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+
+
+         mouseToolbarVisibilty = binding.mouseToolbar.getVisibility();
+         rightToolBarVisibilty = binding.rightToolbar.getVisibility();
+         shortcutProfileSpinnerVisibility = binding.shortcutProfileSpinner.getVisibility();
 
         if (savedInstanceState != null) {
             lastTouchMode = savedInstanceState.getBoolean("lastTouchMode");
@@ -100,6 +109,7 @@ public class DrawActivity extends AppCompatActivity {
             View[] viewsToToggle = {
                     binding.undoButton,
                     binding.redoButton,
+                    binding.mousePadButton,
                     binding.pinchModeButton,
                     binding.showCursorButton,
                     binding.settingsButton,
@@ -111,6 +121,8 @@ public class DrawActivity extends AppCompatActivity {
                 view.setVisibility(newVisibility);
             }
         });
+
+
 
         binding.openShortcutButton.setOnClickListener(v -> {
             startActivity(new Intent(this, CreateShortcutActivity.class));
@@ -302,6 +314,12 @@ public class DrawActivity extends AppCompatActivity {
             }
             hideToolBar(true);
         }
+        if(event.getToolType(0) == TOOL_TYPE_FINGER){
+            float x = event.getX();
+            float y = event.getX();
+            sendQueue.offer(HelperMethods.sendData(HelperMethods.SET_ACTION.MOUSE_MOVE, (int) x, (int) y));
+
+        }
 
         if (touchMode) {
             handlePinchGesture(event);
@@ -432,8 +450,25 @@ public class DrawActivity extends AppCompatActivity {
         });
     }
 
+
+    private void initMousePad(){
+        binding.mousePadButton.setOnClickListener((v) -> {
+            binding.rightToolbar.setVisibility(GONE);
+            binding.shortcutProfileSpinner.setVisibility(GONE);
+
+            int currentVisibility = binding.mouseToolbar.getVisibility();
+            binding.mouseToolbar.setVisibility(currentVisibility == VISIBLE ? GONE : VISIBLE);
+        });
+
+
+
+    }
     private void initShortcutToolbar() {
+
+
         binding.shortcutToolbarButton.setOnClickListener(v -> {
+            binding.mouseToolbar.setVisibility(GONE);
+
             int currentVisibility = binding.rightToolbar.getVisibility();
             int newVisibility = currentVisibility == VISIBLE ? GONE : VISIBLE;
             binding.rightToolbar.setVisibility(newVisibility);
