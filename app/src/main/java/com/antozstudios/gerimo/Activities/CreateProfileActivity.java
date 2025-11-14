@@ -1,4 +1,4 @@
-package com.antozstudios.drawnow.Activities;
+package com.antozstudios.gerimo.Activities;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -16,10 +16,10 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.antozstudios.drawnow.Manager.PrefManager;
-import com.antozstudios.drawnow.Manager.ProfileManager;
-import com.antozstudios.drawnow.R;
-import com.antozstudios.drawnow.databinding.ProfileSettingsLayoutBinding;
+import com.antozstudios.gerimo.Manager.PrefManager;
+import com.antozstudios.gerimo.Manager.ProfileManager;
+import com.antozstudios.gerimo.R;
+import com.antozstudios.gerimo.databinding.ProfileSettingsLayoutBinding;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.snackbar.Snackbar;
 

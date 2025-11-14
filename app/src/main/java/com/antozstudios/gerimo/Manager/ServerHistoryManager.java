@@ -1,9 +1,9 @@
-package com.antozstudios.drawnow.Manager;
+package com.antozstudios.gerimo.Manager;
 
 import android.content.Context;
 import android.util.Log;
 
-import com.antozstudios.drawnow.Helper.Records.HostData;
+import com.antozstudios.gerimo.Helper.Records.HostData;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 

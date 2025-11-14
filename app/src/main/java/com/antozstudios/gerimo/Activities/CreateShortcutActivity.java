@@ -1,8 +1,8 @@
-package com.antozstudios.drawnow.Activities;
+package com.antozstudios.gerimo.Activities;
 
-import static com.antozstudios.drawnow.Helper.JsonPayload.buildJsonPayload;
-import static com.antozstudios.drawnow.Helper.KeyHelper.KeyCode.getAllKeys;
-import static com.antozstudios.drawnow.Helper.KeyHelper.KeyCode.getValue;
+import static com.antozstudios.gerimo.Helper.JsonPayload.buildJsonPayload;
+import static com.antozstudios.gerimo.Helper.KeyHelper.KeyCode.getAllKeys;
+import static com.antozstudios.gerimo.Helper.KeyHelper.KeyCode.getValue;
 
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -28,12 +28,11 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.antozstudios.drawnow.Manager.PrefManager;
-import com.antozstudios.drawnow.Manager.ProfileManager;
-import com.antozstudios.drawnow.R;
+import com.antozstudios.gerimo.Manager.PrefManager;
+import com.antozstudios.gerimo.Manager.ProfileManager;
+import com.antozstudios.gerimo.R;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputEditText;
@@ -56,8 +55,7 @@ import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
-import com.antozstudios.drawnow.databinding.ActivityShortcutBinding;
-import com.google.gson.JsonObject;
+import com.antozstudios.gerimo.databinding.ActivityShortcutBinding;
 
 import okhttp3.Call;
 import okhttp3.Callback;

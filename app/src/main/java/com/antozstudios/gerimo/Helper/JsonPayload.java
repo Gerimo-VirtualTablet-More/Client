@@ -1,4 +1,4 @@
-package com.antozstudios.drawnow.Helper;
+package com.antozstudios.gerimo.Helper;
 
 import org.json.JSONArray;
 import org.json.JSONException;

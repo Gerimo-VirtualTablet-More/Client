@@ -1,4 +1,4 @@
-package com.antozstudios.drawnow.Manager;
+package com.antozstudios.gerimo.Manager;
 
 import static android.content.Context.MODE_PRIVATE;
 
@@ -9,9 +9,9 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.view.ContextThemeWrapper;
 import androidx.gridlayout.widget.GridLayout;
 
-import com.antozstudios.drawnow.Helper.HelperMethods;
-import com.antozstudios.drawnow.Helper.KeyHelper;
-import com.antozstudios.drawnow.R;
+import com.antozstudios.gerimo.Helper.HelperMethods;
+import com.antozstudios.gerimo.Helper.KeyHelper;
+import com.antozstudios.gerimo.R;
 import com.google.android.material.button.MaterialButton;
 
 import org.json.JSONException;

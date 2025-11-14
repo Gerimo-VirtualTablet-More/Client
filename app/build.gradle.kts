@@ -3,11 +3,11 @@ plugins {
 }
 
 android {
-    namespace = "com.antozstudios.drawnow"
+    namespace = "com.antozstudios.gerimo"
     compileSdk = 36
 
     defaultConfig {
-        applicationId = "com.antozstudios.drawnow"
+        applicationId = "com.antozstudios.gerimo"
         minSdk = 24
         targetSdk = 36
         versionCode = 1

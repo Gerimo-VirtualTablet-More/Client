@@ -1,4 +1,4 @@
-package com.antozstudios.drawnow;
+package com.antozstudios.gerimo;
 
 import org.junit.Test;
 

@@ -1,4 +1,4 @@
-package com.antozstudios.drawnow.Activities;
+package com.antozstudios.gerimo.Activities;
 
 import static android.view.MotionEvent.AXIS_TILT;
 import static android.view.MotionEvent.TOOL_TYPE_FINGER;
@@ -22,14 +22,14 @@ import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintSet;
 
-import com.antozstudios.drawnow.Helper.HelperClass;
-import com.antozstudios.drawnow.Helper.HelperMethods;
-import com.antozstudios.drawnow.Helper.KeyHelper;
-import com.antozstudios.drawnow.Helper.Records.ScreenData;
-import com.antozstudios.drawnow.Manager.PrefManager;
-import com.antozstudios.drawnow.Manager.ProfileManager;
-import com.antozstudios.drawnow.R;
-import com.antozstudios.drawnow.databinding.ActivityDrawBinding;
+import com.antozstudios.gerimo.Helper.HelperClass;
+import com.antozstudios.gerimo.Helper.HelperMethods;
+import com.antozstudios.gerimo.Helper.KeyHelper;
+import com.antozstudios.gerimo.Helper.Records.ScreenData;
+import com.antozstudios.gerimo.Manager.PrefManager;
+import com.antozstudios.gerimo.Manager.ProfileManager;
+import com.antozstudios.gerimo.R;
+import com.antozstudios.gerimo.databinding.ActivityDrawBinding;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -41,7 +41,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 public class DrawActivity extends AppCompatActivity {
 
-    public static final String EXTRA_SERVER_IP = "com.antozstudios.drawnow.SERVER_IP";
+    public static final String EXTRA_SERVER_IP = "com.antozstudios.gerimo.SERVER_IP";
     private static final String TAG = "UDPClient";
 
     private String SERVER_IP;
@@ -120,7 +120,7 @@ public class DrawActivity extends AppCompatActivity {
         });
 
         String serverIpFromIntent = getIntent().getStringExtra(EXTRA_SERVER_IP);
-        int serverPortFromIntent = getIntent().getIntExtra("com.antozstudios.drawnow.SERVER_PORT", 5000);
+        int serverPortFromIntent = getIntent().getIntExtra("com.antozstudios.gerimo.SERVER_PORT", 5000);
 
         if (serverIpFromIntent != null && !serverIpFromIntent.isEmpty()) {
             SERVER_IP = serverIpFromIntent;

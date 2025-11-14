@@ -1,7 +1,6 @@
-package com.antozstudios.drawnow.Helper;
+package com.antozstudios.gerimo.Helper;
 
 import java.util.Arrays;
-import java.util.Objects;
 
 public class KeyHelper {
     public enum KeyCode {

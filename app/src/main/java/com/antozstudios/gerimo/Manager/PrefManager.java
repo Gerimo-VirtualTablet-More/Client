@@ -1,10 +1,7 @@
-package com.antozstudios.drawnow.Manager;
+package com.antozstudios.gerimo.Manager;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-
-import androidx.activity.result.ActivityResult;
-import androidx.appcompat.widget.ResourceManagerInternal;
 
 public class PrefManager {
 

@@ -1,22 +1,20 @@
-package com.antozstudios.drawnow.Activities;
+package com.antozstudios.gerimo.Activities;
 
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.KeyEvent;
 import android.view.View;
-import android.widget.Button;
-import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
 
-import com.antozstudios.drawnow.Helper.HelperClass;
-import com.antozstudios.drawnow.Helper.Records.ScreenData;
-import com.antozstudios.drawnow.Manager.PrefManager;
-import com.antozstudios.drawnow.R;
-import com.antozstudios.drawnow.databinding.SettingsLayoutBinding;
+import com.antozstudios.gerimo.Helper.HelperClass;
+import com.antozstudios.gerimo.Helper.Records.ScreenData;
+import com.antozstudios.gerimo.Manager.PrefManager;
+import com.antozstudios.gerimo.R;
+import com.antozstudios.gerimo.databinding.SettingsLayoutBinding;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.snackbar.Snackbar;
 

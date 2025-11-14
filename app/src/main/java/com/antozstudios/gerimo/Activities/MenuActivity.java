@@ -1,9 +1,8 @@
-package com.antozstudios.drawnow.Activities;
+package com.antozstudios.gerimo.Activities;
 import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
 
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.nsd.NsdManager;
 import android.net.nsd.NsdServiceInfo;
@@ -11,8 +10,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
-import android.os.ext.SdkExtensions;
-import android.text.InputType;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -24,12 +21,10 @@ import androidx.annotation.RequiresExtension;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
 
-import com.antozstudios.drawnow.R;
-import com.antozstudios.drawnow.Helper.Records.HostData;
-import com.antozstudios.drawnow.Manager.PrefManager;
-import com.antozstudios.drawnow.Manager.ProfileManager;
-import com.antozstudios.drawnow.Manager.ServerHistoryManager;
-import com.antozstudios.drawnow.databinding.ActivityMenuBinding;
+import com.antozstudios.gerimo.R;
+import com.antozstudios.gerimo.Manager.PrefManager;
+import com.antozstudios.gerimo.Manager.ProfileManager;
+import com.antozstudios.gerimo.databinding.ActivityMenuBinding;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.snackbar.Snackbar;
@@ -110,8 +105,8 @@ public class MenuActivity extends AppCompatActivity {
         }
 
         Intent intent = new Intent(MenuActivity.this, DrawActivity.class);
-        intent.putExtra("com.antozstudios.drawnow.SERVER_IP", ip);
-        intent.putExtra("com.antozstudios.drawnow.SERVER_PORT", port);
+        intent.putExtra("com.antozstudios.gerimo.SERVER_IP", ip);
+        intent.putExtra("com.antozstudios.gerimo.SERVER_PORT", port);
 
         prefManager.putDataPref(PrefManager.DataPref.SHOW_HOSTS)
                 .putString(PrefManager.KeyPref.LAST_IP.getKey(), ip)

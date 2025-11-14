@@ -1,9 +1,8 @@
-package com.antozstudios.drawnow.Helper;
+package com.antozstudios.gerimo.Helper;
 
-import android.content.Intent;
 import android.util.Log;
 
-import com.antozstudios.drawnow.Helper.Records.ScreenData;
+import com.antozstudios.gerimo.Helper.Records.ScreenData;
 
 import java.util.ArrayList;
 
