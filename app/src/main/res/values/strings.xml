@@ -56,6 +56,14 @@
     <string name="key_sequences">Key Sequences</string>
     <string name="manual_connect">Manual Connect</string>
     <string name="create_or_select_a_profile_first">Create or select a profile first</string>
+    <string name="please_select_a_profile_to_save_to">selected</string>
+    <string name="not_found">not found.</string>
+    <string name="error_saving_shortcut_data">Error creating shortcut JSON</string>
+    <string name="shortcuts_saved_to_profile">abc</string>
+    <string name="profile_renamed_to">\renamed to </string>
+    <string name="no_profile_selected_to_edit">no profile selected</string>
+    <string name="edit_profile_name">Rename Profile</string>
+    <string name="saveButton">Save</string>
 
 
 </resources>

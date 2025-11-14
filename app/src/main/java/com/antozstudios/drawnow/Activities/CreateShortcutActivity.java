@@ -314,7 +314,7 @@ public class CreateShortcutActivity extends AppCompatActivity {
         new MaterialAlertDialogBuilder(this)
                 .setTitle(R.string.edit_profile_name)
                 .setView(input)
-                .setPositiveButton("Save", (dialog, which) -> {
+                .setPositiveButton(R.string.saveButton, (dialog, which) -> {
                     String newName = input.getText().toString().toLowerCase().trim();
                     if (newName.isEmpty() || newName.equals(oldName)) {
                         return;
@@ -322,7 +322,7 @@ public class CreateShortcutActivity extends AppCompatActivity {
 
                     String currentProfile = getCurrentProfileName();
                     if (profileManager.shortcutProfileExists(currentProfile, newName)) {
-                        Snackbar.make(activityShortcutBinding.getRoot(), R.string.a_profile_with_this_name_already_exists, Snackbar.LENGTH_SHORT).show();
+                        Snackbar.make(activityShortcutBinding.getRoot(), R.string.already_exists, Snackbar.LENGTH_SHORT).show();
                         return;
                     }
 
@@ -340,7 +340,7 @@ public class CreateShortcutActivity extends AppCompatActivity {
                         activityShortcutBinding.shortcutProfileSpinner.setSelection(newPosition);
                     }
 
-                    Snackbar.make(activityShortcutBinding.getRoot(), getString(R.string.profile_renamed_to) + newName + "'.", Snackbar.LENGTH_SHORT).show();
+                    Snackbar.make(activityShortcutBinding.getRoot(),  oldName + " "+getString(R.string.profile_renamed_to)+" " +newName + ".", Snackbar.LENGTH_SHORT).show();
                 })
                 .setNegativeButton(android.R.string.cancel, null)
                 .show();
@@ -366,7 +366,6 @@ public class CreateShortcutActivity extends AppCompatActivity {
                         Snackbar.make(activityShortcutBinding.getRoot(), "Shortcut Profile '" + getSpinnerValue + "' deleted.", Snackbar.LENGTH_SHORT).show();
                     })
                     .setNegativeButton(android.R.string.no, null)
-                    .setIcon(android.R.drawable.ic_dialog_alert)
                     .show();
         } else {
             Snackbar.make(activityShortcutBinding.getRoot(), "Shortcut Profile not found", Snackbar.LENGTH_SHORT).show();
@@ -558,17 +557,28 @@ public class CreateShortcutActivity extends AppCompatActivity {
             JSONObject children = jsonObject.optJSONObject(key);
             Iterator<String> childKeys = Objects.requireNonNull(children).keys();
             while (childKeys.hasNext()) {
-                String commandName = childKeys.next().toLowerCase();
+                String commandName = childKeys.next();
                 String[] commands = children.optString(commandName).split(";");
                 View tempSection = createAndAddShortcutSection_View();
 
+                LinearLayout spinnerLayout = tempSection.findViewById(R.id.spinnerLinearLayout);
+                spinnerLayout.removeAllViews();
+                boolean anyCommandProcessed = false;
                 for (String command : commands) {
-                    Spinner spinner = createSpinner(tempSection, new Spinner(this));
-                    spinner.setSelection(getValue(command));
+                    if (!command.isEmpty()) {
+                        Spinner spinner = createSpinner(tempSection, new Spinner(this));
+                        int selectionIndex = getValue(command);
+                        if (selectionIndex > 0) {
+                            spinner.setSelection(selectionIndex);
+                            anyCommandProcessed = true;
+                        }
+                    }
                 }
-                TextInputEditText textInputEditText = tempSection.findViewById(R.id.keySequence_MainLinearLayout).findViewById(R.id.shortcutProfileName);
-                textInputEditText.setText(commandName);
-                activityShortcutBinding.shortcutProfileInput.setText(key);
+                if (anyCommandProcessed) {
+                    TextInputEditText textInputEditText = tempSection.findViewById(R.id.keySequence_MainLinearLayout).findViewById(R.id.shortcutProfileName);
+                    textInputEditText.setText(commandName);
+                }
+
             }
         }
     }
@@ -620,10 +630,10 @@ public class CreateShortcutActivity extends AppCompatActivity {
             }
 
             OkHttpClient client = new OkHttpClient.Builder()
-                    .connectTimeout(30, TimeUnit.SECONDS)      // Time to establish the connection
-                    .writeTimeout(30, TimeUnit.SECONDS)        // Time to write data to server
-                    .readTimeout(60, TimeUnit.SECONDS)         // Time to read data from server
-                    .callTimeout(120, TimeUnit.SECONDS)        // Overall timeout for the entire call
+                    .connectTimeout(10, TimeUnit.SECONDS)      // Etwas mehr Puffer
+                    .writeTimeout(10, TimeUnit.SECONDS)        // Kurzer Prompt = ok
+                    .readTimeout(90, TimeUnit.SECONDS)         // KI braucht Zeit zum Generieren
+                    .callTimeout(120, TimeUnit.SECONDS)        // Gesamt-Timeout
                     .build();
 
             Request request = new Request.Builder()
@@ -637,6 +647,9 @@ public class CreateShortcutActivity extends AppCompatActivity {
                 public void onFailure(@NonNull Call call, @NonNull IOException e) {
                     Log.e(CreateShortcutActivity.class.getName(), "Error at Request: " + e.getMessage());
                     runOnUiThread(() -> {
+                        if (isFinishing()) {
+                            return;
+                        }
                         activityShortcutBinding.loadingAnimation.setVisibility(View.GONE);
                     //    Snackbar.make(activityShortcutBinding.getRoot(), "Request failed: " + e.getMessage(), Snackbar.LENGTH_LONG).show();
 
@@ -672,6 +685,8 @@ public class CreateShortcutActivity extends AppCompatActivity {
                                     if (startIndex != -1 && endIndex != -1 && endIndex > startIndex) {
                                         reasoningString = reasoningString.substring(startIndex, endIndex + 1);
                                         final JSONObject reasoning = new JSONObject(reasoningString);
+
+                                        Log.d("ooo",reasoning.toString());
                                         runOnUiThread(() -> addShortcuts(reasoning));
                                     }
                                 }
@@ -684,6 +699,9 @@ public class CreateShortcutActivity extends AppCompatActivity {
                         }
                     } else {
                             runOnUiThread(()->{
+                                if (isFinishing()) {
+                                    return;
+                                }
                                 new MaterialAlertDialogBuilder(CreateShortcutActivity.this, com.google.android.material.R.style.MaterialAlertDialog_Material3)
                                         .setTitle("Try Again")
                                         .setMessage("Request failed: " + responseBody)

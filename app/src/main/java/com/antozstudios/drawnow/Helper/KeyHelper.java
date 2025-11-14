@@ -220,13 +220,13 @@ public class KeyHelper {
             return null;
         }
         public static int getValue(String keyCode) {
-            int index =0;
-           for(String g:getAllKeys()){
-               if(Objects.equals(keyCode, g)){
-                   return index;
-               }
-               index++;
-           }
+            int index = 0;
+            for (String g : getAllKeys()) {
+                if (g.equalsIgnoreCase(keyCode)) {
+                    return index;
+                }
+                index++;
+            }
             return 0;
         }
 

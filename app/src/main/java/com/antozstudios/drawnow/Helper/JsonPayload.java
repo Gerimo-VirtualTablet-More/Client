@@ -11,18 +11,13 @@ public class JsonPayload {
         String systemContent = "You are Gerimo AI, a Windows 11 shortcut generator. " +
                 "Output ONLY a single JSON object (NOT an array). " +
                 "The root must be an object with program names as keys, not an array of objects. " +
-                "Correct format: {\"Program_Name\":{\"Shortcut_1\":\"LControl;C\",\"Shortcut_2\":\"LControl;V\"}}. " +
+                "Correct format: {\"Program_Name\":{\"Name_of_Shortcut_1\":\"LControl;C\",\"Name_of_Shortcut_2\":\"LControl;A;LControl;X\"}}. " +
                 "WRONG format: [{\"Program_Name\":{...}}]. " +
                 "No comments, explanations, markdown formatting, or extra fields. Maximum 15 shortcuts/sequences. " +
-                "Use official C# KeyCodes from System.Windows.Forms.Keys (hex format). " +
-                "Modifiers: LControl=0xA2, RControl=0xA3, LShift=0xA0, RShift=0xA1, LAlt=0xA4, RAlt=0xA5, LWin=0x5B, RWin=0x5C. " +
-                "Letters: A-Z=0x41-0x5A. Digits: D0-D9=0x30-0x39, NumPad0-9=0x60-0x69. " +
-                "Function: F1-F24=0x70-0x87. Navigation: Left=0x25, Up=0x26, Right=0x27, Down=0x28, Home=0x24, End=0x23, PageUp=0x21, PageDown=0x22. " +
-                "Special: Enter=0xD, Backspace=8, Tab=9, Escape=0x1B, Space=0x20, Delete=0x2E, Insert=0x2D. " +
-                "OEM: OemSemicolon=0xBA, Oemplus=0xBB, Oemcomma=0xBC, OemMinus=0xBD, OemPeriod=0xBE, OemQuestion=0xBF, Oemtilde=0xC0, OemOpenBrackets=0xDB, OemPipe=0xDC, OemCloseBrackets=0xDD, OemQuotes=0xDE, OemBackslash=0xE2. " +
-                "Media: VolumeMute=0xAD, VolumeDown=0xAE, VolumeUp=0xAF, MediaPlayPause=0xB3, MediaNextTrack=0xB0, MediaPreviousTrack=0xB1, MediaStop=0xB2. " +
-                "Browser: BrowserBack=0xA6, BrowserForward=0xA7, BrowserRefresh=0xA8, BrowserHome=0xAC. " +
-                "Other: PrintScreen=0x2C, NumLock=0x90, CapsLock=0x14, Scroll=0x91.";
+                "You MUST use the exact key names from the list below. Do NOT use hex codes. Key names are case-sensitive. " +
+                "Separate keys in a shortcut combination with a semicolon (;). You can also combine multiple shortcuts for example 'LControl;A;LControl;X' for 'Select All' followed by 'Cut'. " +
+                "List of allowed key names: " +
+                "None, LButton, RButton, Cancel, MButton, XButton1, XButton2, Backspace, Tab, LineFeed, Clear, Return, Enter, Shift, Control, Alt, Menu, Pause, Capital, CapsLock, KanaMode, HanguelMode, HangulMode, JunjaMode, FinalMode, HanjaMode, KanjiMode, Escape, IMEConvert, IMENonconvert, IMEAccept, IMEAceept, IMEModeChange, Space, PageUp, Prior, PageDown, Next, End, Home, Left, Up, Right, Down, Select, Print, Execute, PrintScreen, Snapshot, Insert, Delete, Help, D0, D1, D2, D3, D4, D5, D6, D7, D8, D9, A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, Y, Z, LWin, RWin, Apps, Sleep, NumPad0, NumPad1, NumPad2, NumPad3, NumPad4, NumPad5, NumPad6, NumPad7, NumPad8, NumPad9, Multiply, Add, Separator, Subtract, Decimal, Divide, F1, F2, F3, F4, F5, F6, F7, F8, F9, F10, F11, F12, F13, F14, F15, F16, F17, F18, F19, F20, F21, F22, F23, F24, NumLock, Scroll, LShift, LShiftKey, RShift, RShiftKey, LControl, LControlKey, RControl, RControlKey, LAlt, LMenu, RMenu, RAlt, BrowserBack, BrowserForward, BrowserRefresh, BrowserStop, BrowserSearch, BrowserFavorites, BrowserHome, VolumeMute, VolumeDown, VolumeUp, MediaNextTrack, MediaPreviousTrack, MediaStop, MediaPlayPause, LaunchMail, SelectMedia, LaunchApplication1, LaunchApplication2, OemSemicolon, Oem1, Oemplus, Oemcomma, OemMinus, OemPeriod, OemQuestion, Oem2, Oemtilde, Oem3, OemOpenBrackets, Oem4, OemPipe, Oem5, OemCloseBrackets, Oem6, OemQuotes, Oem7, Oem8, OemBackslash, Oem102, ProcessKey, Packet, Attn, Crsel, Exsel, EraseEof, Play, Zoom, NoName, Pa1, OemClear";
 
 
         JSONObject systemMessage = new JSONObject();
