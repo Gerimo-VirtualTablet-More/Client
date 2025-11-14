@@ -4,6 +4,7 @@ import static com.antozstudios.drawnow.Helper.JsonPayload.buildJsonPayload;
 import static com.antozstudios.drawnow.Helper.KeyHelper.KeyCode.getAllKeys;
 import static com.antozstudios.drawnow.Helper.KeyHelper.KeyCode.getValue;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.net.Uri;
@@ -53,7 +54,11 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
+
 import com.antozstudios.drawnow.databinding.ActivityShortcutBinding;
+import com.google.gson.JsonObject;
+
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.MediaType;
@@ -145,7 +150,7 @@ public class CreateShortcutActivity extends AppCompatActivity {
 
         activityShortcutBinding.saveShortcutProfileButton.setOnClickListener((view) -> {
             if (activityShortcutBinding.shortcutProfileSpinner.getSelectedItem() == null) {
-                Snackbar.make(view, "Please select a profile to save to.", Snackbar.LENGTH_SHORT).show();
+                Snackbar.make(view, R.string.please_select_a_profile_to_save_to, Snackbar.LENGTH_SHORT).show();
                 return;
             }
 
@@ -153,7 +158,7 @@ public class CreateShortcutActivity extends AppCompatActivity {
             String currentProfile = getCurrentProfileName();
 
             if (!profileManager.shortcutProfileExists(currentProfile, selectedProfile)) {
-                Snackbar.make(view, "Profile '" + selectedProfile + "' not found.", Snackbar.LENGTH_SHORT).show();
+                Snackbar.make(view, R.string.profile + selectedProfile + getString(R.string.not_found), Snackbar.LENGTH_SHORT).show();
                 return;
             }
 
@@ -192,22 +197,20 @@ public class CreateShortcutActivity extends AppCompatActivity {
                         newShortcutData.put(uniqueKey, commandSequence.toString());
                     } catch (JSONException e) {
                         Log.e("ShortcutActivity", "Error creating shortcut JSON", e);
-                        Snackbar.make(view, "Error saving shortcut data.", Snackbar.LENGTH_SHORT).show();
+                        Snackbar.make(view, R.string.error_saving_shortcut_data, Snackbar.LENGTH_SHORT).show();
                         return;
                     }
                 }
             }
 
             profileManager.updateShortcutProfile(currentProfile, selectedProfile, newShortcutData);
-            Snackbar.make(view, "Shortcuts saved to profile '" + selectedProfile + "'.", Snackbar.LENGTH_SHORT).show();
+            Snackbar.make(view, getString(R.string.shortcuts_saved_to_profile) + selectedProfile + "'.", Snackbar.LENGTH_SHORT).show();
         });
 
         activityShortcutBinding.addKeysequenceButton.setOnClickListener((v1) -> createAndAddShortcutSection_View());
         activityShortcutBinding.aiSearchButton.setOnClickListener((v2) -> {
             String searchText = Objects.requireNonNull(activityShortcutBinding.aiSearchInput.getText()).toString();
             if (!searchText.isEmpty()) {
-                activityShortcutBinding.loadingAnimation.setVisibility(View.VISIBLE);
-                activityShortcutBinding.aiSearchInput.setText("");
                 new Thread(() -> aiSearch(searchText)).start();
             }
         });
@@ -300,7 +303,7 @@ public class CreateShortcutActivity extends AppCompatActivity {
 
     private void handleEditProfile() {
         if (activityShortcutBinding.shortcutProfileSpinner.getSelectedItem() == null) {
-            Snackbar.make(activityShortcutBinding.getRoot(), "No profile selected to edit.", Snackbar.LENGTH_SHORT).show();
+            Snackbar.make(activityShortcutBinding.getRoot(), R.string.no_profile_selected_to_edit, Snackbar.LENGTH_SHORT).show();
             return;
         }
 
@@ -309,7 +312,7 @@ public class CreateShortcutActivity extends AppCompatActivity {
         input.setText(oldName);
 
         new MaterialAlertDialogBuilder(this)
-                .setTitle("Edit Profile Name")
+                .setTitle(R.string.edit_profile_name)
                 .setView(input)
                 .setPositiveButton("Save", (dialog, which) -> {
                     String newName = input.getText().toString().toLowerCase().trim();
@@ -319,7 +322,7 @@ public class CreateShortcutActivity extends AppCompatActivity {
 
                     String currentProfile = getCurrentProfileName();
                     if (profileManager.shortcutProfileExists(currentProfile, newName)) {
-                        Snackbar.make(activityShortcutBinding.getRoot(), "A profile with this name already exists.", Snackbar.LENGTH_SHORT).show();
+                        Snackbar.make(activityShortcutBinding.getRoot(), R.string.a_profile_with_this_name_already_exists, Snackbar.LENGTH_SHORT).show();
                         return;
                     }
 
@@ -337,7 +340,7 @@ public class CreateShortcutActivity extends AppCompatActivity {
                         activityShortcutBinding.shortcutProfileSpinner.setSelection(newPosition);
                     }
 
-                    Snackbar.make(activityShortcutBinding.getRoot(), "Profile renamed to '" + newName + "'.", Snackbar.LENGTH_SHORT).show();
+                    Snackbar.make(activityShortcutBinding.getRoot(), getString(R.string.profile_renamed_to) + newName + "'.", Snackbar.LENGTH_SHORT).show();
                 })
                 .setNegativeButton(android.R.string.cancel, null)
                 .show();
@@ -602,6 +605,8 @@ public class CreateShortcutActivity extends AppCompatActivity {
 
     void aiSearch(String text) {
         if (!text.isEmpty()) {
+            runOnUiThread(()->activityShortcutBinding.loadingAnimation.setVisibility(View.VISIBLE));
+
             String jsonBody = null;
             try {
                 jsonBody = buildJsonPayload(text, "deepseek/deepseek-chat-v3.1:free");
@@ -613,7 +618,14 @@ public class CreateShortcutActivity extends AppCompatActivity {
                 activityShortcutBinding.getRoot().post(() -> activityShortcutBinding.loadingAnimation.setVisibility(View.GONE));
                 return;
             }
-            OkHttpClient client = new OkHttpClient();
+
+            OkHttpClient client = new OkHttpClient.Builder()
+                    .connectTimeout(30, TimeUnit.SECONDS)      // Time to establish the connection
+                    .writeTimeout(30, TimeUnit.SECONDS)        // Time to write data to server
+                    .readTimeout(60, TimeUnit.SECONDS)         // Time to read data from server
+                    .callTimeout(120, TimeUnit.SECONDS)        // Overall timeout for the entire call
+                    .build();
+
             Request request = new Request.Builder()
                     .url("https://openrouter.ai/api/v1/chat/completions")
                     .addHeader("Authorization", "Bearer " + prefManager.getDataPref(PrefManager.DataPref.SETTINGS_CONFIG).getString(PrefManager.KeyPref.API_KEY.getKey(), ""))
@@ -626,7 +638,20 @@ public class CreateShortcutActivity extends AppCompatActivity {
                     Log.e(CreateShortcutActivity.class.getName(), "Error at Request: " + e.getMessage());
                     runOnUiThread(() -> {
                         activityShortcutBinding.loadingAnimation.setVisibility(View.GONE);
-                        Snackbar.make(activityShortcutBinding.getRoot(), "Request failed: " + e.getMessage(), Snackbar.LENGTH_LONG).show();
+                    //    Snackbar.make(activityShortcutBinding.getRoot(), "Request failed: " + e.getMessage(), Snackbar.LENGTH_LONG).show();
+
+                        new MaterialAlertDialogBuilder(CreateShortcutActivity.this, com.google.android.material.R.style.MaterialAlertDialog_Material3)
+                                .setTitle("Try Again")
+                                .setMessage("Request failed: " + e.getMessage())
+                                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        aiSearch(text);
+                                    }
+                                })
+                                .setNegativeButton(R.string.cancel,null)
+                                .show();
+
                     });
                 }
 
@@ -654,16 +679,23 @@ public class CreateShortcutActivity extends AppCompatActivity {
                                 Log.e(CreateShortcutActivity.class.getName(), "Error parsing JSON: " + e.getMessage());
                                 runOnUiThread(() -> Snackbar.make(activityShortcutBinding.getRoot(), "Error processing AI response.", Snackbar.LENGTH_LONG).show());
                             }
+                        }else{
+                            runOnUiThread(() -> Snackbar.make(activityShortcutBinding.getRoot(), "No response from AI.", Snackbar.LENGTH_LONG).show());
                         }
                     } else {
-                        Log.e(CreateShortcutActivity.class.getName(), "Request failed: " + response.code() + " " + responseBody);
-                        String errorMessage;
-                        if (response.code() == 429) {
-                            errorMessage = "Rate limit reached. Please try again later.";
-                        } else {
-                            errorMessage = "Request failed: " + response.code();
-                        }
-                        runOnUiThread(() -> Snackbar.make(activityShortcutBinding.getRoot(), errorMessage, Snackbar.LENGTH_LONG).show());
+                            runOnUiThread(()->{
+                                new MaterialAlertDialogBuilder(CreateShortcutActivity.this, com.google.android.material.R.style.MaterialAlertDialog_Material3)
+                                        .setTitle("Try Again")
+                                        .setMessage("Request failed: " + responseBody)
+                                        .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                                            @Override
+                                            public void onClick(DialogInterface dialog, int which) {
+                                                aiSearch(text);
+                                            }
+                                        })
+                                        .setNegativeButton(R.string.cancel,null)
+                                        .show();
+                            });
                     }
                 }
             });
