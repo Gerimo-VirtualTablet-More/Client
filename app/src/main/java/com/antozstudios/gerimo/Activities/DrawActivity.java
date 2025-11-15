@@ -67,6 +67,7 @@ public class DrawActivity extends AppCompatActivity {
     private int clientWidth;
     private int clientHeight;
 
+    float lastX = -1, lastY = -1;
     int mouseToolbarVisibilty;
     int rightToolBarVisibilty;
     int shortcutProfileSpinnerVisibility;
@@ -104,6 +105,7 @@ public class DrawActivity extends AppCompatActivity {
 
         initDefaultFloatingButtons();
         initShortcutToolbar();
+        initMousePad();
 
         binding.ToolButton.setOnClickListener(v -> {
             View[] viewsToToggle = {
@@ -314,10 +316,44 @@ public class DrawActivity extends AppCompatActivity {
             }
             hideToolBar(true);
         }
-        if(event.getToolType(0) == TOOL_TYPE_FINGER){
-            float x = event.getX();
-            float y = event.getX();
-            sendQueue.offer(HelperMethods.sendData(HelperMethods.SET_ACTION.MOUSE_MOVE, (int) x, (int) y));
+      else  if(event.getToolType(0) == TOOL_TYPE_FINGER){
+
+if(binding.mouseToolbar.getVisibility()==VISIBLE){
+    float x = event.getX();
+    float y = event.getY();
+
+
+    if(event.getAction() == MotionEvent.ACTION_DOWN) {
+        lastX = x;
+        lastY = y;
+    }
+
+    if(event.getAction() == MotionEvent.ACTION_MOVE && lastX >= 0 && lastY >= 0) {
+        if (currentScreenData == null || currentIndex >= currentScreenData.size()) return super.onTouchEvent(event);
+        float deltaX = x - lastX;
+        float deltaY = y - lastY;
+
+        // Skalierung ins virtuelle Desktop-System (wie in deinem Code)
+        float scaledDeltaX = deltaX * currentScreenData.get(currentIndex).workareaWidth() / clientWidth;
+        float scaledDeltaY = deltaY * currentScreenData.get(currentIndex).workareaHeight() / clientHeight;
+
+        int normalizedDeltaX = (int)Math.round((double)scaledDeltaX * 65535 / currentScreenData.get(currentIndex).workareaWidth());
+        int normalizedDeltaY = (int)Math.round((double)scaledDeltaY * 65535 / currentScreenData.get(currentIndex).workareaHeight());
+
+        sendQueue.offer(HelperMethods.sendData(HelperMethods.SET_ACTION.MOUSE, normalizedDeltaX, normalizedDeltaY));
+        lastX = x;
+        lastY = y;
+    }
+    if(event.getAction() == MotionEvent.ACTION_UP) {
+        lastX = -1;
+        lastY = -1;
+
+    }
+
+}
+
+
+
 
         }
 
@@ -451,28 +487,34 @@ public class DrawActivity extends AppCompatActivity {
     }
 
 
-    private void initMousePad(){
+    private void initMousePad() {
         binding.mousePadButton.setOnClickListener((v) -> {
-            binding.rightToolbar.setVisibility(GONE);
-            binding.shortcutProfileSpinner.setVisibility(GONE);
-
-            int currentVisibility = binding.mouseToolbar.getVisibility();
-            binding.mouseToolbar.setVisibility(currentVisibility == VISIBLE ? GONE : VISIBLE);
+            if (binding.mouseToolbar.getVisibility() == VISIBLE) {
+                binding.mouseToolbar.setVisibility(GONE);
+            } else {
+                binding.mouseToolbar.setVisibility(VISIBLE);
+                binding.rightToolbar.setVisibility(GONE);
+                binding.shortcutProfileSpinner.setVisibility(GONE);
+            }
         });
 
-
-
+        binding.leftMouseButton.setOnClickListener((v)->{
+          sendQueue.offer(HelperMethods.sendData(HelperMethods.SET_ACTION.LEFT_MOUSE_CLICK));
+        });
+        binding.rightMouseButton.setOnClickListener((v)->{
+           sendQueue.offer(HelperMethods.sendData(HelperMethods.SET_ACTION.RIGHT_MOUSE_CLICK));
+        });
     }
     private void initShortcutToolbar() {
-
-
         binding.shortcutToolbarButton.setOnClickListener(v -> {
-            binding.mouseToolbar.setVisibility(GONE);
-
-            int currentVisibility = binding.rightToolbar.getVisibility();
-            int newVisibility = currentVisibility == VISIBLE ? GONE : VISIBLE;
-            binding.rightToolbar.setVisibility(newVisibility);
-            binding.shortcutProfileSpinner.setVisibility(newVisibility);
+            if (binding.rightToolbar.getVisibility() == VISIBLE) {
+                binding.rightToolbar.setVisibility(GONE);
+                binding.shortcutProfileSpinner.setVisibility(GONE);
+            } else {
+                binding.rightToolbar.setVisibility(VISIBLE);
+                binding.shortcutProfileSpinner.setVisibility(VISIBLE);
+                binding.mouseToolbar.setVisibility(GONE);
+            }
         });
 
         binding.shortcutProfileSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {

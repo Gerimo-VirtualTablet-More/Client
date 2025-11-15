@@ -67,6 +67,15 @@
                     app:iconPadding="0dp"
                     app:iconSize="@dimen/iconSize"
                     app:iconTint="?attr/colorOnSurface" />
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/mousePadButton"
+                    style="@style/Theme.DrawNow.CustomMaterialButton"
+                    app:backgroundTint="?attr/colorSurface"
+                    app:icon="@drawable/mouse_icon"
+                    app:iconGravity="textStart"
+                    app:iconPadding="0dp"
+                    app:iconSize="@dimen/iconSize"
+                    app:iconTint="?attr/colorOnSurface" />
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/showCursorButton"
@@ -184,5 +193,38 @@
             </androidx.gridlayout.widget.GridLayout>
         </ScrollView>
     </com.google.android.material.card.MaterialCardView>
+
+
+    <com.google.android.material.button.MaterialButtonToggleGroup
+        android:visibility="invisible"
+        android:id="@+id/mouseToolbar"
+        android:layout_width="0dp"
+        android:layout_height="100dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/left_toolbar_scrollview">
+
+        <com.google.android.material.button.MaterialButton
+            android:text="@string/left"
+            android:id="@+id/leftMouseButton"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"/>
+
+
+        <com.google.android.material.button.MaterialButton
+            android:text="@string/right"
+            android:id="@+id/rightMouseButton"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"/>
+
+
+
+    </com.google.android.material.button.MaterialButtonToggleGroup>
+
+
+
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

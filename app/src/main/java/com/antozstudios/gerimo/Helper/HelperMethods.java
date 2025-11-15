@@ -13,7 +13,10 @@ public class HelperMethods {
         HOVER,
         CLICK,
         PINCH,
-        HOTKEY
+        HOTKEY,
+        MOUSE,
+        LEFT_MOUSE_CLICK,
+       RIGHT_MOUSE_CLICK
     }
     public enum GET_ACTION {
         RESOLUTION
@@ -33,6 +36,13 @@ public class HelperMethods {
     public static String sendData(SET_ACTION action, int x, int y, float pressure) {
         return getActionString(action) + ";" + x + ";" + y + ";" + pressure;
     }
+    public static String sendData(SET_ACTION action) {
+        return getActionString(action);
+    }
+    public static String sendData(SET_ACTION action, int x, int y) {
+        return getActionString(action) + ";" + x + ";" + y;
+    }
+
 
     public static String sendData(SET_ACTION action, int x, int y, float pressure,int tiltX,int tiltY) {
         return getActionString(action) + ";" + x + ";" + y + ";" + pressure + ";" + tiltX + ";" + tiltY;
