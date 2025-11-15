@@ -206,7 +206,7 @@
 
         <com.google.android.material.button.MaterialButton
             android:text="@string/left"
-            style="@style/Widget.Material3.Button.OutlinedButton"
+
             android:id="@+id/leftMouseButton"
             android:layout_width="0dp"
             android:layout_height="match_parent"
@@ -215,6 +215,7 @@
 
         <com.google.android.material.button.MaterialButton
             android:text="@string/right"
+            style="@style/Widget.Material3.Button.OutlinedButton"
             android:id="@+id/rightMouseButton"
             android:layout_width="0dp"
             android:layout_height="match_parent"
