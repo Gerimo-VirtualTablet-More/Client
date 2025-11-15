@@ -31,6 +31,7 @@ import com.antozstudios.gerimo.Manager.ProfileManager;
 import com.antozstudios.gerimo.R;
 import com.antozstudios.gerimo.databinding.ActivityDrawBinding;
 
+
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
@@ -55,7 +56,10 @@ public class DrawActivity extends AppCompatActivity {
     private Thread senderThread;
     private Thread receiverThread;
 
-    boolean lastTouchMode, touchMode, showLastPointMode;
+    boolean lastTouchMode,
+            pinchMode,
+            mouseMode,
+            showLastPointMode;
 
     ViewPropertyAnimator anim1, anim2;
 
@@ -68,9 +72,6 @@ public class DrawActivity extends AppCompatActivity {
     private int clientHeight;
 
     float lastX = -1, lastY = -1;
-    int mouseToolbarVisibilty;
-    int rightToolBarVisibilty;
-    int shortcutProfileSpinnerVisibility;
 
     private boolean isOfflineMode = false;
 
@@ -81,15 +82,14 @@ public class DrawActivity extends AppCompatActivity {
         binding = ActivityDrawBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-
-         mouseToolbarVisibilty = binding.mouseToolbar.getVisibility();
-         rightToolBarVisibilty = binding.rightToolbar.getVisibility();
-         shortcutProfileSpinnerVisibility = binding.shortcutProfileSpinner.getVisibility();
-
         if (savedInstanceState != null) {
             lastTouchMode = savedInstanceState.getBoolean("lastTouchMode");
-            touchMode = savedInstanceState.getBoolean("touchMode");
+            mouseMode = savedInstanceState.getBoolean("mouseMode");
+            pinchMode = savedInstanceState.getBoolean("pinchMode");
             showLastPointMode = savedInstanceState.getBoolean("showLastPointMode");
+            binding.mouseToolbar.setVisibility(savedInstanceState.getInt("mouseToolbarVisibility", GONE));
+            binding.rightToolbar.setVisibility(savedInstanceState.getInt("rightToolbarVisibility", GONE));
+            binding.shortcutProfileSpinner.setVisibility(savedInstanceState.getInt("shortcutProfileSpinnerVisibility", GONE));
         }
 
         binding.drawActivity.post(() -> {
@@ -99,13 +99,18 @@ public class DrawActivity extends AppCompatActivity {
 
         prefManager = PrefManager.getInstance(this);
         profileManager = ProfileManager.getInstance(this);
-        Log.d("mmm",profileManager.readFile());
+
         anim1 = binding.pinchCursor1.animate();
         anim2 = binding.pinchCursor2.animate();
 
         initDefaultFloatingButtons();
         initShortcutToolbar();
         initMousePad();
+
+        if (savedInstanceState == null) {
+            binding.rightToolbar.setVisibility(View.GONE);
+            binding.shortcutProfileSpinner.setVisibility(View.GONE);
+        }
 
         binding.ToolButton.setOnClickListener(v -> {
             View[] viewsToToggle = {
@@ -153,8 +158,12 @@ public class DrawActivity extends AppCompatActivity {
     protected void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putBoolean("lastTouchMode", lastTouchMode);
-        outState.putBoolean("touchMode", touchMode);
+        outState.putBoolean("pinchMode", pinchMode);
+        outState.putBoolean("mouseMode", mouseMode);
         outState.putBoolean("showLastPointMode", showLastPointMode);
+        outState.putInt("mouseToolbarVisibility", binding.mouseToolbar.getVisibility());
+        outState.putInt("rightToolbarVisibility", binding.rightToolbar.getVisibility());
+        outState.putInt("shortcutProfileSpinnerVisibility", binding.shortcutProfileSpinner.getVisibility());
     }
 
     @Override
@@ -290,126 +299,127 @@ public class DrawActivity extends AppCompatActivity {
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        if (isOfflineMode) return super.onTouchEvent(event);
-        if (event.getToolType(0) == TOOL_TYPE_STYLUS) {
-            int x = (int) event.getX();
-            int y = (int) event.getY();
-            float pressure = event.getPressure() > 0 ? event.getPressure() : 0;
-            float tilt = event.getAxisValue(AXIS_TILT);
-            float orientation = event.getOrientation() > 0 ? event.getOrientation() : 0;
-            float tiltX = (float) (Math.sin(orientation) * Math.toDegrees(tilt));
-            float tiltY = (float) (Math.cos(orientation) * Math.toDegrees(tilt));
+        if (isOfflineMode) {
+            return super.onTouchEvent(event);
+        }
 
-            if (showLastPointMode) {
-                binding.cursorImage.setVisibility(VISIBLE);
-                binding.cursorImage.setX(x - ((float) binding.cursorImage.getWidth() / 2));
-                binding.cursorImage.setY(y - ((float) binding.cursorImage.getHeight() / 2));
-                binding.cursorImage.setScaleX((float) Math.max(0.5, pressure));
-                binding.cursorImage.setScaleY((float) Math.max(0.5, pressure));
+        int toolType = event.getToolType(0);
+
+        if (toolType == MotionEvent.TOOL_TYPE_STYLUS) {
+            handlePenGestures(event);
+        } else if (toolType == MotionEvent.TOOL_TYPE_FINGER) {
+            if (mouseMode && event.getPointerCount() == 1) {
+                handleMouseGestures(event.getX(), event.getY(), event);
+            } else if (pinchMode && event.getPointerCount() >= 2) {
+                handlePinchGesture(event);
             }
-
-            if (clientWidth > 0 && clientHeight > 0 && currentScreenData != null && currentIndex < currentScreenData.size()) {
-                float scaledX = (x * (currentScreenData.get(currentIndex).workareaWidth() / (float) clientWidth));
-                float scaledY = (y * (currentScreenData.get(currentIndex).workareaHeight() / (float) clientHeight));
-
-                sendQueue.offer(HelperMethods.sendData(HelperMethods.SET_ACTION.CLICK, (int) scaledX +currentScreenData.get(currentIndex).workareaX(), (int) scaledY+currentScreenData.get(currentIndex).workareaY(), pressure, (int) tiltX, (int) tiltY));
-            }
-            hideToolBar(true);
-        }
-      else  if(event.getToolType(0) == TOOL_TYPE_FINGER){
-
-if(binding.mouseToolbar.getVisibility()==VISIBLE){
-    float x = event.getX();
-    float y = event.getY();
-
-
-    if(event.getAction() == MotionEvent.ACTION_DOWN) {
-        lastX = x;
-        lastY = y;
-    }
-
-    if(event.getAction() == MotionEvent.ACTION_MOVE && lastX >= 0 && lastY >= 0) {
-        if (currentScreenData == null || currentIndex >= currentScreenData.size()) return super.onTouchEvent(event);
-        float deltaX = x - lastX;
-        float deltaY = y - lastY;
-
-        // Skalierung ins virtuelle Desktop-System (wie in deinem Code)
-        float scaledDeltaX = deltaX * currentScreenData.get(currentIndex).workareaWidth() / clientWidth;
-        float scaledDeltaY = deltaY * currentScreenData.get(currentIndex).workareaHeight() / clientHeight;
-
-        int normalizedDeltaX = (int)Math.round((double)scaledDeltaX * 65535 / currentScreenData.get(currentIndex).workareaWidth());
-        int normalizedDeltaY = (int)Math.round((double)scaledDeltaY * 65535 / currentScreenData.get(currentIndex).workareaHeight());
-
-        sendQueue.offer(HelperMethods.sendData(HelperMethods.SET_ACTION.MOUSE, normalizedDeltaX, normalizedDeltaY));
-        lastX = x;
-        lastY = y;
-    }
-    if(event.getAction() == MotionEvent.ACTION_UP) {
-        lastX = -1;
-        lastY = -1;
-
-    }
-
-}
-
-
-
-
         }
 
-        if (touchMode) {
-            handlePinchGesture(event);
-        }
         return super.onTouchEvent(event);
     }
 
-    private void handlePinchGesture(MotionEvent event) {
-        if (event.getPointerCount() >= 2) {
-            int action = event.getActionMasked();
-            int pointerIndex1 = event.findPointerIndex(0);
-            int pointerIndex2 = event.findPointerIndex(1);
+    private void handlePenGestures(MotionEvent event) {
+        int x = (int) event.getX();
+        int y = (int) event.getY();
+        float pressure = event.getPressure() > 0 ? event.getPressure() : 0;
+        float tilt = event.getAxisValue(AXIS_TILT);
+        float orientation = event.getOrientation() > 0 ? event.getOrientation() : 0;
+        float tiltX = (float) (Math.sin(orientation) * Math.toDegrees(tilt));
+        float tiltY = (float) (Math.cos(orientation) * Math.toDegrees(tilt));
 
-            if (pointerIndex1 != -1 && pointerIndex2 != -1 &&
-                    event.getToolType(pointerIndex1) == TOOL_TYPE_FINGER &&
-                    event.getToolType(pointerIndex2) == TOOL_TYPE_FINGER) {
+        if (showLastPointMode) {
+            binding.cursorImage.setVisibility(VISIBLE);
+            binding.cursorImage.setX(x - ((float) binding.cursorImage.getWidth() / 2));
+            binding.cursorImage.setY(y - ((float) binding.cursorImage.getHeight() / 2));
+            binding.cursorImage.setScaleX((float) Math.max(0.5, pressure));
+            binding.cursorImage.setScaleY((float) Math.max(0.5, pressure));
+        }
 
-                int x1 = (int) event.getX(pointerIndex1);
-                int y1 = (int) event.getY(pointerIndex1);
-                int x2 = (int) event.getX(pointerIndex2);
-                int y2 = (int) event.getY(pointerIndex2);
+        if (clientWidth > 0 && clientHeight > 0 && currentScreenData != null && currentIndex < currentScreenData.size()) {
+            float scaledX = (x * (currentScreenData.get(currentIndex).workareaWidth() / (float) clientWidth));
+            float scaledY = (y * (currentScreenData.get(currentIndex).workareaHeight() / (float) clientHeight));
 
-                switch (action) {
-                    case MotionEvent.ACTION_POINTER_DOWN:
-                        binding.pinchCursor1.setVisibility(VISIBLE);
-                        binding.pinchCursor2.setVisibility(VISIBLE);
-                        anim1.scaleX(1.5F).scaleY(1.5F).setDuration(100).start();
-                        anim2.scaleX(1.5F).scaleY(1.5F).setDuration(100).start();
-                    case MotionEvent.ACTION_MOVE:
-                        binding.pinchCursor1.setX(x1 - ((float) binding.pinchCursor1.getWidth() / 2));
-                        binding.pinchCursor1.setY(y1 - ((float) binding.pinchCursor1.getHeight() / 2));
-                        binding.pinchCursor2.setX(x2 - ((float) binding.pinchCursor2.getWidth() / 2));
-                        binding.pinchCursor2.setY(y2 - ((float) binding.pinchCursor2.getHeight() / 2));
+            sendQueue.offer(HelperMethods.sendData(HelperMethods.SET_ACTION.CLICK, (int) scaledX + currentScreenData.get(currentIndex).workareaX(), (int) scaledY + currentScreenData.get(currentIndex).workareaY(), pressure, (int) tiltX, (int) tiltY));
+        }
+        hideToolBar(true);
+    }
 
-                        if (clientWidth > 0 && clientHeight > 0 && currentScreenData != null && currentIndex < currentScreenData.size()) {
-                            ScreenData screen = currentScreenData.get(currentIndex);
-                            float scaledX1 = (x1 * (screen.workareaWidth() / (float) clientWidth)) + screen.workareaX();
-                            float scaledY1 = (y1 * (screen.workareaHeight() / (float) clientHeight)) + screen.workareaY();
-                            float scaledX2 = (x2 * (screen.workareaWidth() / (float) clientWidth)) + screen.workareaX();
-                            float scaledY2 = (y2 * (screen.workareaHeight() / (float) clientHeight)) + screen.workareaY();
-                            sendQueue.offer(HelperMethods.sendData(HelperMethods.SET_ACTION.PINCH, (int) scaledX1, (int) scaledX2, (int) scaledY1, (int) scaledY2));
-                        } else {
-                            sendQueue.offer(HelperMethods.sendData(HelperMethods.SET_ACTION.PINCH, x1, x2, y1, y2));
-                        }
-                        break;
-                    case MotionEvent.ACTION_POINTER_UP:
-                    case MotionEvent.ACTION_CANCEL:
-                        sendQueue.offer(HelperMethods.sendData(HelperMethods.SET_ACTION.PINCH, 0, 0, 0, 0));
-                        binding.pinchCursor1.setVisibility(INVISIBLE);
-                        binding.pinchCursor2.setVisibility(INVISIBLE);
-                        anim1.scaleX(1.0F).scaleY(1.0F).setDuration(100).start();
-                        anim2.scaleX(1.0F).scaleY(1.0F).setDuration(100).start();
-                        break;
+    private void handleMouseGestures(float x, float y, MotionEvent event) {
+        if (!mouseMode) {
+            return;
+        }
+        switch (event.getAction()) {
+            case MotionEvent.ACTION_DOWN:
+                lastX = x;
+                lastY = y;
+                break;
+            case MotionEvent.ACTION_MOVE:
+                if (lastX != -1 && lastY != -1 && currentScreenData != null && currentIndex < currentScreenData.size()) {
+                    float deltaX = x - lastX;
+                    float deltaY = y - lastY;
+
+                    ScreenData screen = currentScreenData.get(currentIndex);
+                    float scaledDeltaX = deltaX * screen.workareaWidth() / clientWidth;
+                    float scaledDeltaY = deltaY * screen.workareaHeight() / clientHeight;
+
+                    int normalizedDeltaX = (int) Math.round((double) scaledDeltaX * 65535 / screen.workareaWidth());
+                    int normalizedDeltaY = (int) Math.round((double) scaledDeltaY * 65535 / screen.workareaHeight());
+
+                    sendQueue.offer(HelperMethods.sendData(HelperMethods.SET_ACTION.MOUSE, normalizedDeltaX, normalizedDeltaY));
+                    lastX = x;
+                    lastY = y;
                 }
+                break;
+            case MotionEvent.ACTION_UP:
+                lastX = -1;
+                lastY = -1;
+                break;
+        }
+    }
+
+    private void handlePinchGesture(MotionEvent event) {
+        int action = event.getActionMasked();
+        int pointerIndex1 = event.findPointerIndex(0);
+        int pointerIndex2 = event.findPointerIndex(1);
+
+        if (pointerIndex1 != -1 && pointerIndex2 != -1) {
+            int x1 = (int) event.getX(pointerIndex1);
+            int y1 = (int) event.getY(pointerIndex1);
+            int x2 = (int) event.getX(pointerIndex2);
+            int y2 = (int) event.getY(pointerIndex2);
+
+            switch (action) {
+                case MotionEvent.ACTION_POINTER_DOWN:
+                    binding.pinchCursor1.setVisibility(VISIBLE);
+                    binding.pinchCursor2.setVisibility(VISIBLE);
+                    anim1.scaleX(1.5F).scaleY(1.5F).setDuration(100).start();
+                    anim2.scaleX(1.5F).scaleY(1.5F).setDuration(100).start();
+                    // Fall-through
+                case MotionEvent.ACTION_MOVE:
+                    binding.pinchCursor1.setX(x1 - (binding.pinchCursor1.getWidth() / 2f));
+                    binding.pinchCursor1.setY(y1 - (binding.pinchCursor1.getHeight() / 2f));
+                    binding.pinchCursor2.setX(x2 - (binding.pinchCursor2.getWidth() / 2f));
+                    binding.pinchCursor2.setY(y2 - (binding.pinchCursor2.getHeight() / 2f));
+
+                    if (clientWidth > 0 && clientHeight > 0 && currentScreenData != null && currentIndex < currentScreenData.size()) {
+                        ScreenData screen = currentScreenData.get(currentIndex);
+                        float scaledX1 = (x1 * (screen.workareaWidth() / (float) clientWidth)) + screen.workareaX();
+                        float scaledY1 = (y1 * (screen.workareaHeight() / (float) clientHeight)) + screen.workareaY();
+                        float scaledX2 = (x2 * (screen.workareaWidth() / (float) clientWidth)) + screen.workareaX();
+                        float scaledY2 = (y2 * (screen.workareaHeight() / (float) clientHeight)) + screen.workareaY();
+                        sendQueue.offer(HelperMethods.sendData(HelperMethods.SET_ACTION.PINCH, (int) scaledX1, (int) scaledX2, (int) scaledY1, (int) scaledY2));
+                    } else {
+                        sendQueue.offer(HelperMethods.sendData(HelperMethods.SET_ACTION.PINCH, x1, x2, y1, y2));
+                    }
+                    break;
+                case MotionEvent.ACTION_POINTER_UP:
+                case MotionEvent.ACTION_CANCEL:
+                    sendQueue.offer(HelperMethods.sendData(HelperMethods.SET_ACTION.PINCH, 0, 0, 0, 0));
+                    binding.pinchCursor1.setVisibility(INVISIBLE);
+                    binding.pinchCursor2.setVisibility(INVISIBLE);
+                    anim1.scaleX(1.0F).scaleY(1.0F).setDuration(100).start();
+                    anim2.scaleX(1.0F).scaleY(1.0F).setDuration(100).start();
+                    break;
             }
         } else {
             binding.pinchCursor1.setVisibility(INVISIBLE);
@@ -428,7 +438,7 @@ if(binding.mouseToolbar.getVisibility()==VISIBLE){
             int action = event.getActionMasked();
 
             if (action == MotionEvent.ACTION_HOVER_MOVE) {
-                touchMode = false;
+                pinchMode = false;
 
                 if (showLastPointMode) {
                     binding.cursorImage.setX(x - ((float) binding.cursorImage.getWidth() / 2));
@@ -443,7 +453,7 @@ if(binding.mouseToolbar.getVisibility()==VISIBLE){
             } else if (action == MotionEvent.ACTION_HOVER_ENTER) {
                 hideToolBar(false);
             } else {
-                touchMode = touchMode && lastTouchMode;
+                pinchMode = pinchMode && lastTouchMode;
             }
         }
         return super.onGenericMotionEvent(event);
@@ -475,8 +485,8 @@ if(binding.mouseToolbar.getVisibility()==VISIBLE){
             if(!isOfflineMode) sendQueue.offer(HelperMethods.sendData(HelperMethods.SET_ACTION.HOTKEY, new KeyHelper.KeyCode[]{KeyHelper.KeyCode.LControl, KeyHelper.KeyCode.Y}));
         });
         binding.pinchModeButton.setOnClickListener(v -> {
-            touchMode = !touchMode;
-            lastTouchMode = touchMode;
+            pinchMode = !pinchMode;
+            lastTouchMode = pinchMode;
         });
         binding.showCursorButton.setOnClickListener(v -> {
             if (showLastPointMode && binding.cursorImage.getVisibility() == VISIBLE) {
@@ -489,10 +499,11 @@ if(binding.mouseToolbar.getVisibility()==VISIBLE){
 
     private void initMousePad() {
         binding.mousePadButton.setOnClickListener((v) -> {
-            if (binding.mouseToolbar.getVisibility() == VISIBLE) {
-                binding.mouseToolbar.setVisibility(GONE);
-            } else {
-                binding.mouseToolbar.setVisibility(VISIBLE);
+            boolean isMouseToolbarVisible = binding.mouseToolbar.getVisibility() == VISIBLE;
+            binding.mouseToolbar.setVisibility(isMouseToolbarVisible ? GONE : VISIBLE);
+            mouseMode = !isMouseToolbarVisible;
+
+            if (mouseMode) {
                 binding.rightToolbar.setVisibility(GONE);
                 binding.shortcutProfileSpinner.setVisibility(GONE);
             }
@@ -507,13 +518,13 @@ if(binding.mouseToolbar.getVisibility()==VISIBLE){
     }
     private void initShortcutToolbar() {
         binding.shortcutToolbarButton.setOnClickListener(v -> {
-            if (binding.rightToolbar.getVisibility() == VISIBLE) {
-                binding.rightToolbar.setVisibility(GONE);
-                binding.shortcutProfileSpinner.setVisibility(GONE);
-            } else {
-                binding.rightToolbar.setVisibility(VISIBLE);
-                binding.shortcutProfileSpinner.setVisibility(VISIBLE);
+            boolean isRightToolbarVisible = binding.rightToolbar.getVisibility() == VISIBLE;
+            binding.rightToolbar.setVisibility(isRightToolbarVisible ? GONE : VISIBLE);
+            binding.shortcutProfileSpinner.setVisibility(isRightToolbarVisible ? GONE : VISIBLE);
+
+            if (!isRightToolbarVisible) {
                 binding.mouseToolbar.setVisibility(GONE);
+                mouseMode = false;
             }
         });
 
@@ -537,9 +548,6 @@ if(binding.mouseToolbar.getVisibility()==VISIBLE){
         });
 
         updateShortcutSpinner();
-
-        binding.rightToolbar.setVisibility(View.GONE);
-        binding.shortcutProfileSpinner.setVisibility(View.GONE);
     }
 
     private void updateShortcutSpinner() {

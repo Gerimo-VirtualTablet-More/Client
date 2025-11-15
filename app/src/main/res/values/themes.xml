@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <style name="Theme.Gerimo" parent="Theme.Material3.Light.NoActionBar">
+    <style name="Theme.DrawNow" parent="Theme.Material3.Light.NoActionBar">
         <!-- Light theme colors -->
         <item name="colorPrimary">@color/light_primary</item>
         <item name="colorOnPrimary">@color/light_onPrimary</item>

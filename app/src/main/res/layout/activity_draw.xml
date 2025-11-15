@@ -199,13 +199,14 @@
         android:visibility="invisible"
         android:id="@+id/mouseToolbar"
         android:layout_width="0dp"
-        android:layout_height="100dp"
+        android:layout_height="250dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/left_toolbar_scrollview">
 
         <com.google.android.material.button.MaterialButton
             android:text="@string/left"
+            style="@style/Widget.Material3.Button.OutlinedButton"
             android:id="@+id/leftMouseButton"
             android:layout_width="0dp"
             android:layout_height="match_parent"
