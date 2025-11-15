@@ -183,6 +183,14 @@ public class DrawActivity extends AppCompatActivity {
         ConstraintSet constraintSet = new ConstraintSet();
         constraintSet.clone(binding.drawActivity);
 
+        // Clear existing constraints before applying new ones to avoid conflicts
+        constraintSet.clear(R.id.shortcut_profile_spinner, ConstraintSet.START);
+        constraintSet.clear(R.id.shortcut_profile_spinner, ConstraintSet.END);
+        constraintSet.clear(R.id.right_toolbar, ConstraintSet.START);
+        constraintSet.clear(R.id.right_toolbar, ConstraintSet.END);
+        constraintSet.clear(R.id.mouseToolbar, ConstraintSet.START);
+        constraintSet.clear(R.id.mouseToolbar, ConstraintSet.END);
+
         if (toolbarPosition.equals("RIGHT")) {
             // Toolbar to the right
             constraintSet.connect(R.id.left_toolbar_scrollview, ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END);
@@ -196,6 +204,10 @@ public class DrawActivity extends AppCompatActivity {
             constraintSet.connect(R.id.right_toolbar, ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START);
             constraintSet.connect(R.id.right_toolbar, ConstraintSet.END, R.id.left_toolbar_scrollview, ConstraintSet.START);
 
+            // Mouse toolbar to the left of the main toolbar
+            constraintSet.connect(R.id.mouseToolbar, ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START);
+            constraintSet.connect(R.id.mouseToolbar, ConstraintSet.END, R.id.left_toolbar_scrollview, ConstraintSet.START);
+
         } else {
             // Toolbar to the left
             constraintSet.connect(R.id.left_toolbar_scrollview, ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START);
@@ -208,6 +220,10 @@ public class DrawActivity extends AppCompatActivity {
             // Right toolbar (shortcut buttons) to the right of the main toolbar
             constraintSet.connect(R.id.right_toolbar, ConstraintSet.START, R.id.left_toolbar_scrollview, ConstraintSet.END);
             constraintSet.connect(R.id.right_toolbar, ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END);
+
+            // Mouse toolbar to the right of the main toolbar
+            constraintSet.connect(R.id.mouseToolbar, ConstraintSet.START, R.id.left_toolbar_scrollview, ConstraintSet.END);
+            constraintSet.connect(R.id.mouseToolbar, ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END);
         }
 
         constraintSet.applyTo(binding.drawActivity);
